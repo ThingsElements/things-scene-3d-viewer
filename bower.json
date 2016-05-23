@@ -1,0 +1,27 @@
+{
+  "name": "things-scene-3d-viewer",
+  "description": "",
+  "main": "things-scene-3d-viewer.js",
+  "authors": [
+    "Stellan Gil <lotstar87@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/ThingsElements/things-scene-3d-viewer",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src",
+    "lib",
+    "DEPLOYMENT.md",
+    "DEVELOPMENT.md",
+    "things-scene-3d-viewer.js"
+  ],
+  "dependencies": {
+    "things-scene": "^0.4.15"
+  },
+  "devDependencies": {
+  }
+}

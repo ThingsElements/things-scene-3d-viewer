@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WebGL3dViwer Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="../webgl.css" type="text/css">
+
+    <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #ctrlButtons {
+      position: fixed;
+      left : 0;
+      bottom: 0;
+      margin: 5px;
+    }
+
+    </style>
+
+    <!-- <script src="./sylvester.js" type="text/javascript"></script> -->
+    <!-- <script src="./glUtils.js" type="text/javascript"></script> -->
+    <!-- <script src="index.js" type="text/javascript"></script> -->
+
+    <!-- Fragment shader program -->
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      // Each point has a position and color
+      attribute vec3 position;
+      attribute vec4 color;
+
+      // The transformation matrices
+      uniform mat4 model;
+      uniform mat4 view;
+      uniform mat4 projection;
+
+      // Pass the color attribute down to the fragment shader
+      varying vec4 vColor;
+
+      void main() {
+
+        //Pass the color down to the fragment shader
+        vColor = color;
+
+        // Read the multiplication in reverse order, the point is taken from
+        // the original model space and moved into world space. It is then
+        // projected into clip space as a homogeneous point. Generally the
+        // W value will be something other than 1 at the end of it.
+
+        gl_Position = projection * view * model * vec4( position, 1.0 );
+
+      }
+    </script>
+
+    <!-- The fragment shader determines the color of the final pixel by setting gl_FragColor -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+      varying vec4 vColor;
+
+      void main() {
+        gl_FragColor = vColor;
+        // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
+    </script>
+
+  </head>
+
+  <body>
+    <canvas id="glcanvas">
+      Your browser doesn't appear to support the <code>&lt;canvas&gt;</code> element.
+    </canvas>
+    <div id="ctrlButtons">
+      <input type="button" value="Reset" onclick="reset()">
+      <input type="button" value="X축 회전" onclick="rotateX(45);">
+      <input type="button" value="Y축 회전" onclick="rotateY(45);">
+      <input type="button" value="Z축 회전" onclick="rotateZ(45);">
+    </div>
+    <script src="../things-scene-3d-viewer.js" type="text/javascript"></script>
+    <script>
+      var canvas = document.getElementById("glcanvas");
+      // canvas.width = window.innerWidth - 50
+      // canvas.height = window.innerHeight - 50
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+
+      var viewer = new ThingsScene3dViewer.WebGL3dViwer(canvas)
+
+      var mouseX = 0;
+      var mouseY = 0;
+
+      var reset = function() {
+        viewer.rotateX = 0;
+        viewer.rotateY = 0;
+        viewer.rotateZ = 0;
+        viewer.zoom = 0;
+        viewer.deltaX = 0;
+        viewer.deltaY = 0;
+      }
+      var rotateY = function(angle) {
+        viewer.rotateY += (Math.PI / 180 * angle)
+      }
+      var rotateZ = function(angle) {
+        viewer.rotateZ += (Math.PI / 180 * angle)
+      }
+
+      var rotateX = function(angle) {
+        viewer.rotateX -= (Math.PI / 180 * angle)
+      }
+      var rotateY = function(angle) {
+        viewer.rotateY += (Math.PI / 180 * angle)
+      }
+      var rotateZ = function(angle) {
+        viewer.rotateZ += (Math.PI / 180 * angle)
+      }
+
+      canvas.onmousewheel = function(e) {
+        viewer.zoom += e.deltaY
+      }
+
+      canvas.onmousedown = function(e) {
+
+        viewer.isDraging = true
+
+        if(e.altKey)
+          viewer.isScreenMove = true
+
+        mouseX = e.x;
+        mouseY = e.y;
+      }
+
+      canvas.onmousemove = function(e) {
+        if(!viewer.isDraging)
+          return
+
+        var deltaX = mouseX - e.x;
+        var deltaY = mouseY - e.y;
+
+        if(Math.abs(deltaX) > 50) {
+          if(viewer.isScreenMove)
+            viewer.deltaX += deltaX
+        }
+
+
+        if(Math.abs(deltaY) > 50) {
+          if(viewer.isScreenMove)
+            viewer.deltaY -= deltaY
+        }
+
+      }
+
+      canvas.onmouseup = function(e) {
+        viewer.isDraging = viewer.isScreenMove = false
+      }
+
+      canvas.onmouseout = function(e) {
+        viewer.isDraging = viewer.isScreenMove = false
+      }
+
+    </script>
+  </body>
+</html>
