@@ -7,12 +7,25 @@ export default class WebGL3dViwer {
     // Grab a context
     this._gl = this.createContext(canvas)
 
-    this._transforms = {}; // All of the matrix transforms
-    this._locations = {}; //All of the shader locations
+    this._webglProgram = this.setupProgram();
+
+    this._model = [
+      new ThingsScene3dViewer.Cube(this, {
+        cx : 3, cy : 3, cz: 3, width : 0.5, height : 0.5, depth : 0.5
+      }),
+      new ThingsScene3dViewer.Cube(this, {
+        cx : 0, cy : 0, cz: 0, width : 1, height : 1, depth : 1
+      }),
+      new ThingsScene3dViewer.Cube(this, {
+        cx : -5, cy : 0, cz: -3, width : 0.7, height : 0.4, depth : 1
+      })
+    ]
+
+    // this._transforms = {}; // All of the matrix transforms
+    // this._locations = {}; //All of the shader locations
 
     // Get the rest going
-    this._buffers = this.createBuffersForCube(this._gl, this.createCubeData() );
-    this._webglProgram = this.setupProgram();
+    // this._buffers = this.createBuffersForCube(this._gl, this.createCubeData() );
 
     this._rotateX = 0
     this._rotateY = 0
@@ -21,8 +34,14 @@ export default class WebGL3dViwer {
     this._deltaX = 0
     this._deltaY = 0
     this._zoom = 0
-
-    this.draw()
+    
+    // this.draw({
+    //   cx: 0, cy: 0, cz: 0, width: 1, height: 1, depth: 1
+    // });
+    //
+    // this.draw({
+    //   cx: 5, cy: 5, cz: 5, width: 0.5, height: 0.5, depth: 0.5
+    // });
 
   }
 
@@ -79,14 +98,13 @@ export default class WebGL3dViwer {
 
   /* method */
 
-  draw() {
+  draw(option) {
 
     var gl = this._gl;
-    var now = Date.now();
 
     // Compute our matrices
-    this.computeModelMatrix( now );
-    this.computeViewMatrix( now );
+    this.computeModelMatrix( option );
+    this.computeViewMatrix();
     this.computePerspectiveMatrix( 0.5 );
 
     // Update the data going to the GPU
@@ -96,26 +114,27 @@ export default class WebGL3dViwer {
     gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 
     // Run the draw as a loop
-    requestAnimationFrame( this.draw.bind(this) );
+    requestAnimationFrame( this.draw.bind(this, option) );
 
   }
 
 
-  setupProgram() {
+  setupProgram(model) {
 
+    var self = model || this;
     var gl = this._gl;
 
     // Setup a WebGL program
     var webglProgram = this.createWebGLProgramFromIds(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(webglProgram);
 
-    // Save the attribute and uniform locations
-    this._locations.model = gl.getUniformLocation(webglProgram, "model");
-    this._locations.view = gl.getUniformLocation(webglProgram, "view");
-    this._locations.projection = gl.getUniformLocation(webglProgram, "projection");
-
-    this._locations.position = gl.getAttribLocation(webglProgram, "position");
-    this._locations.color = gl.getAttribLocation(webglProgram, "color");
+    // // Save the attribute and uniform locations
+    // self._locations.model = gl.getUniformLocation(webglProgram, "model");
+    // self._locations.view = gl.getUniformLocation(webglProgram, "view");
+    // self._locations.projection = gl.getUniformLocation(webglProgram, "projection");
+    //
+    // self._locations.position = gl.getAttribLocation(webglProgram, "position");
+    // self._locations.color = gl.getAttribLocation(webglProgram, "color");
 
     // Tell WebGL to test the depth when drawing
     gl.enable(gl.DEPTH_TEST);
@@ -124,7 +143,7 @@ export default class WebGL3dViwer {
 
   }
 
-  computePerspectiveMatrix( now ) {
+  computePerspectiveMatrix() {
 
     // var fieldOfViewInRadians = (Math.PI / 180 * 45);
     // var fieldOfViewInRadians = Math.PI * 0.5;
@@ -143,26 +162,19 @@ export default class WebGL3dViwer {
   }
 
 
-  computeViewMatrix( now ) {
+  computeViewMatrix() {
 
-    // var zoomInAndOut = 5 * Math.sin(this._zoom * 0.002);
     var zoomInAndOut = 0.01 * this._zoom;
 
-    // var moveLeftAndRight = 15 * Math.sin(this._deltaX * 0.00001);
     var moveLeftAndRight = 0.001 * this._deltaX;
 
-    // var moveTopAndBottom = 15 * Math.sin(this._deltaY * 0.00001);
     var moveTopAndBottom = 0.001 * this._deltaY
 
     var rotateX = this.rotateXMatrix( this.rotateX );
 
     // Rotate according to time
-    // var rotateY = this.rotateYMatrix( now * 0.0005 );
-    // var rotateY = this.rotateYMatrix( Math.PI * this.rotateY );
     var rotateY = this.rotateYMatrix( this.rotateY );
 
-    // var rotateZ = this.rotateZMatrix( Math.PI * this.rotateZ );
-    // var rotateZ = this.rotateZMatrix( Math.PI * this.rotateZ );
     var rotateZ = this.rotateZMatrix( this.rotateZ );
 
     // Move the camera around
@@ -185,28 +197,21 @@ export default class WebGL3dViwer {
 
   }
 
-  computeModelMatrix(now) {
+  computeModelMatrix(option) {
 
     //Scale up
-    // var scale = this.scaleMatrix(5, 5, 5);
-    var scale = this.scaleMatrix(1, 1, 1);
+    var scale = this.scaleMatrix(option.width, option.height, option.depth);
 
     // Rotate a slight tilt
-    // var rotateX = this.rotateXMatrix( now * 0.0003 );
-    // var rotateX = this.rotateXMatrix( Math.PI * this.rotateX );
     var rotateX = this.rotateXMatrix( this.rotateX );
 
     // Rotate according to time
-    // var rotateY = this.rotateYMatrix( now * 0.0005 );
-    // var rotateY = this.rotateYMatrix( Math.PI * this.rotateY );
     var rotateY = this.rotateYMatrix( this.rotateY );
 
-    // var rotateZ = this.rotateZMatrix( Math.PI * this.rotateZ );
-    // var rotateZ = this.rotateZMatrix( Math.PI * this.rotateZ );
     var rotateZ = this.rotateZMatrix( this.rotateZ );
 
     // Move slightly down
-    var position = this.translateMatrix(0, 0, 0);
+    var position = this.translateMatrix(option.cx, option.cy, option.cz);
 
     // Multiply together, make sure and read them in opposite order
     this._transforms.model = this.multiplyArrayOfMatrices([
