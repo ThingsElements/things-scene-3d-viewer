@@ -3,7 +3,11 @@ export default class Cube {
   constructor(viewer, model) {
     this._viewer = viewer
 
-    this._model = {}
+    this._model = {
+      cx : 0,
+      cy : 0,
+      cz : 0
+    }
 
     Object.assign(this._model, model)
 
@@ -13,7 +17,7 @@ export default class Cube {
 
     // Get the rest going
     // this._buffers.push(this.createBuffersForCube(viewer._gl, this.createCubeData() ))
-    this._buffers = this.createBuffersForCube(viewer._gl, this.createCubeData() );
+    this._buffers = this.createBuffersForCube(viewer._gl, this.createModelData() );
     // this._buffers = Object.assign(this._buffers, this.createBuffersForCube(viewer._gl, this.createCubeOutlineData()))
     this.setAttributesAndUniforms()
     // this._webglProgram = viewer.setupProgram(this);
@@ -109,11 +113,12 @@ export default class Cube {
     var rotateZ = this._viewer.rotateZMatrix( this._viewer.rotateZ );
 
     // Move the camera around
-    var position = this._viewer.translateMatrix(moveLeftAndRight, moveTopAndBottom, -20 + zoomInAndOut );
+    var position = this._viewer.translateMatrix(moveLeftAndRight, moveTopAndBottom, 20 + zoomInAndOut );
+    // var position = this._viewer.translateMatrix(moveLeftAndRight, moveTopAndBottom, zoomInAndOut );
 
 
     // Multiply together, make sure and read them in opposite order
-    this._transforms.view = this._viewer.multiplyArrayOfMatrices([
+    var matrix = this._viewer.multiplyArrayOfMatrices([
       // //Exercise: rotate the camera view
       // position
       position,
@@ -124,19 +129,21 @@ export default class Cube {
 
     // Inverse the operation for camera movements, because we are actually
     // moving the geometry in the scene, not the camera itself.
-    // this._transforms.view = MDN.invertMatrix( matrix );
+    this._transforms.view = this._viewer.invertMatrix( matrix );
 
   }
 
   computePerspectiveMatrix() {
 
-    // var fieldOfViewInRadians = (Math.PI / 180 * 45);
+    var fieldOfViewInRadians = (Math.PI / 180 * 120);
     // var fieldOfViewInRadians = Math.PI * 0.5;
-    var fieldOfViewInRadians = 1;
-    // var aspectRatio = this._canvas.width / this._canvas.height
+    // var fieldOfViewInRadians = 120;
+
+    // var fieldOfViewInRadians = 1;
+    // var aspectRatio = this._viewer._canvas.width / this._viewer._canvas.height
     var aspectRatio = window.innerWidth / window.innerHeight
     var nearClippingPlaneDistance = 1;
-    var farClippingPlaneDistance = 50;
+    var farClippingPlaneDistance = 500;
 
     this._transforms.projection = this._viewer.perspectiveMatrix(
       fieldOfViewInRadians,
@@ -164,7 +171,7 @@ export default class Cube {
     // Set the colors attribute
     gl.enableVertexAttribArray(this._locations.color);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.colors);
-    gl.vertexAttribPointer(this._locations.color, 4, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this._locations.color, 4, gl.FLOAT, gl.TRUE, 0, 0);
 
     // Set the outline colors attribute
     gl.enableVertexAttribArray(this._locations.outlineColor);
@@ -175,89 +182,17 @@ export default class Cube {
 
   }
 
-  createCubeData() {
+  createModelData() {
 
-      var positions = [
-        // Front face
-        -1.0, -1.0,  1.0,
-         1.0, -1.0,  1.0,
-         1.0,  1.0,  1.0,
-        -1.0,  1.0,  1.0,
-
-        // Back face
-        -1.0, -1.0, -1.0,
-        -1.0,  1.0, -1.0,
-         1.0,  1.0, -1.0,
-         1.0, -1.0, -1.0,
-
-        // Top face
-        -1.0,  1.0, -1.0,
-        -1.0,  1.0,  1.0,
-         1.0,  1.0,  1.0,
-         1.0,  1.0, -1.0,
-
-        // Bottom face
-        -1.0, -1.0, -1.0,
-         1.0, -1.0, -1.0,
-         1.0, -1.0,  1.0,
-        -1.0, -1.0,  1.0,
-
-        // Right face
-         1.0, -1.0, -1.0,
-         1.0,  1.0, -1.0,
-         1.0,  1.0,  1.0,
-         1.0, -1.0,  1.0,
-
-        // Left face
-        -1.0, -1.0, -1.0,
-        -1.0, -1.0,  1.0,
-        -1.0,  1.0,  1.0,
-        -1.0,  1.0, -1.0
-      ];
-
-      var modelColor = this._model.colors
-
-      var colorsOfFaces = [
-        [0.3,  1.0,  1.0,  1.0],    // Front face: cyan
-        [1.0,  0.3,  0.3,  1.0],    // Back face: red
-        [0.3,  1.0,  0.3,  1.0],    // Top face: green
-        [0.3,  0.3,  1.0,  1.0],    // Bottom face: blue
-        [1.0,  1.0,  0.3,  1.0],    // Right face: yellow
-        [1.0,  0.3,  1.0,  1.0]     // Left face: purple
-      ];
-      // var colorsOfFaces = [
-      //   [0.3,  1.0,  1.0,  1.0],    // Front face: cyan
-      //   [1.0,  0.3,  0.3,  1.0],    // Back face: red
-      //   [0.3,  1.0,  0.3,  1.0],    // Top face: green
-      //   [0.3,  0.3,  1.0,  1.0],    // Bottom face: blue
-      //   [1.0,  1.0,  0.3,  1.0],    // Right face: yellow
-      //   [1.0,  0.3,  1.0,  1.0]     // Left face: purple
-      // ];
-
-      var colors = [];
-
-      for (var j=0; j<6; j++) {
-        var polygonColor = colorsOfFaces[j];
-
-        for (var i=0; i<4; i++) {
-          colors = colors.concat( polygonColor );
-        }
-      }
+      var positions = this.createPositions();
+      var colors = this.createColors();
+      var elements = this.createElements();
 
       var outlineColors = [];
 
       for (var i=0; i<24; i++) {
         outlineColors = outlineColors.concat([0.0, 0.0, 0.0, 1.0])
       }
-
-      var elements = [
-        0,  1,  2,      0,  2,  3,    // front
-        4,  5,  6,      4,  6,  7,    // back
-        8,  9,  10,     8,  10, 11,   // top
-        12, 13, 14,     12, 14, 15,   // bottom
-        16, 17, 18,     16, 18, 19,   // right
-        20, 21, 22,     20, 22, 23    // left
-      ]
 
       return {
         positions: positions,
@@ -266,6 +201,86 @@ export default class Cube {
         outlineColors : outlineColors
       }
 
+  }
+
+  createPositions() {
+    var positions = [
+      // Front face
+      -1.0, -1.0,  1.0,
+       1.0, -1.0,  1.0,
+       1.0,  1.0,  1.0,
+      -1.0,  1.0,  1.0,
+
+      // Back face
+      -1.0, -1.0, -1.0,
+      -1.0,  1.0, -1.0,
+       1.0,  1.0, -1.0,
+       1.0, -1.0, -1.0,
+
+      // Top face
+      -1.0,  1.0, -1.0,
+      -1.0,  1.0,  1.0,
+       1.0,  1.0,  1.0,
+       1.0,  1.0, -1.0,
+
+      // Bottom face
+      -1.0, -1.0, -1.0,
+       1.0, -1.0, -1.0,
+       1.0, -1.0,  1.0,
+      -1.0, -1.0,  1.0,
+
+      // Right face
+       1.0, -1.0, -1.0,
+       1.0,  1.0, -1.0,
+       1.0,  1.0,  1.0,
+       1.0, -1.0,  1.0,
+
+      // Left face
+      -1.0, -1.0, -1.0,
+      -1.0, -1.0,  1.0,
+      -1.0,  1.0,  1.0,
+      -1.0,  1.0, -1.0
+    ];
+
+    return positions;
+  }
+
+  createColors() {
+
+    var colorsOfFaces = [
+      [0.3,  1.0,  1.0,  1.0],    // Front face: cyan
+      [1.0,  0.3,  0.3,  1.0],    // Back face: red
+      [0.3,  1.0,  0.3,  1.0],    // Top face: green
+      [0.3,  0.3,  1.0,  1.0],    // Bottom face: blue
+      [1.0,  1.0,  0.3,  1.0],    // Right face: yellow
+      [1.0,  0.3,  1.0,  1.0]     // Left face: purple
+    ];
+
+    var colors = [];
+
+    for (var j=0; j<6; j++) {
+      var polygonColor = colorsOfFaces[j];
+
+      for (var i=0; i<4; i++) {
+        colors = colors.concat( polygonColor );
+      }
+    }
+
+    return colors;
+
+  }
+
+  createElements() {
+    var elements = [
+      0,  1,  2,      0,  2,  3,    // front
+      4,  5,  6,      4,  6,  7,    // back
+      8,  9,  10,     8,  10, 11,   // top
+      12, 13, 14,     12, 14, 15,   // bottom
+      16, 17, 18,     16, 18, 19,   // right
+      20, 21, 22,     20, 22, 23    // left
+    ]
+
+    return elements;
   }
 
   createBuffersForCube( gl, cube ) {

@@ -54,11 +54,22 @@
         vColor = color;
         vOutlineColor = outlineColor;
 
+        // First transform the point
+        // vec4 transformedPosition = projection * view * model * vec4( position, 1.0 );
+        //
+        // // How much affect does the perspective have?
+        // float scaleFactor = 0.5;
+        //
+        // // Set w by taking the Z value which is typically ranged -1 to 1, then scale
+        // // it to be from 0 to some number, in this case 0-1.
+        // float w = (1.0 + transformedPosition.z) * scaleFactor;
+
         // Read the multiplication in reverse order, the point is taken from
         // the original model space and moved into world space. It is then
         // projected into clip space as a homogeneous point. Generally the
         // W value will be something other than 1 at the end of it.
 
+        // gl_Position = vec4( transformedPosition.xyz , w );
         gl_Position = projection * view * model * vec4( position, 1.0 );
 
       }
@@ -128,6 +139,8 @@
 
       canvas.onmousewheel = function(e) {
         viewer.zoom += e.deltaY
+
+        console.log(viewer.zoom)
       }
 
       canvas.onmousedown = function(e) {

@@ -6,18 +6,22 @@ export default class WebGL3dViwer {
 
     // Grab a context
     this._gl = this.createContext(canvas)
+    this.setViewport(0, 0, canvas.width, canvas.height)
 
     this._webglProgram = this.setupProgram();
 
     this._model = [
-      new ThingsScene3dViewer.Cube(this, {
-        cx : 3, cy : 3, cz: 3, width : 0.5, height : 0.5, depth : 0.5
+      new ThingsScene3dViewer.Floor(this, {
+          width : 1, height : 1, depth : 1
       }),
-      new ThingsScene3dViewer.Cube(this, {
-        cx : 0, cy : 0, cz: 0, width : 1, height : 1, depth : 1
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.3, cy : 0.3, cz: 0.3, width : 0.05, height : 0.05, depth : 0.05
       }),
-      new ThingsScene3dViewer.Cube(this, {
-        cx : -5, cy : 0, cz: -3, width : 0.7, height : 0.4, depth : 1
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0, cy : 0, cz: 0, width : 0.1, height : 0.1, depth : 0.1
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.5, cy : 0, cz: -0.3, width : 0.07, height : 0.04, depth : 0.1
       })
     ]
 
@@ -34,7 +38,7 @@ export default class WebGL3dViwer {
     this._deltaX = 0
     this._deltaY = 0
     this._zoom = 0
-    
+
     // this.draw({
     //   cx: 0, cy: 0, cz: 0, width: 1, height: 1, depth: 1
     // });
@@ -118,6 +122,13 @@ export default class WebGL3dViwer {
 
   }
 
+  setViewport(l, b, w, h) {
+
+    var gl = this._gl;
+    gl.viewport(l, b, w, h);
+
+  }
+
 
   setupProgram(model) {
 
@@ -138,6 +149,7 @@ export default class WebGL3dViwer {
 
     // Tell WebGL to test the depth when drawing
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND)
 
     return webglProgram;
 
@@ -146,10 +158,10 @@ export default class WebGL3dViwer {
   computePerspectiveMatrix() {
 
     // var fieldOfViewInRadians = (Math.PI / 180 * 45);
-    // var fieldOfViewInRadians = Math.PI * 0.5;
-    var fieldOfViewInRadians = 1;
-    // var aspectRatio = this._canvas.width / this._canvas.height
-    var aspectRatio = window.innerWidth / window.innerHeight
+    var fieldOfViewInRadians = Math.PI * 0.5;
+    // var fieldOfViewInRadians = 45;
+    var aspectRatio = this._canvas.width / this._canvas.height
+    // var aspectRatio = window.innerWidth / window.innerHeight
     var nearClippingPlaneDistance = 1;
     var farClippingPlaneDistance = 50;
 
@@ -164,7 +176,7 @@ export default class WebGL3dViwer {
 
   computeViewMatrix() {
 
-    var zoomInAndOut = 0.01 * this._zoom;
+    var zoomInAndOut = 0.000001 * this._zoom;
 
     var moveLeftAndRight = 0.001 * this._deltaX;
 
@@ -601,7 +613,53 @@ export default class WebGL3dViwer {
       gl = null;
     }
 
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
     return gl;
   }
+
+  invertMatrix( matrix ) {
+
+   // Adapted from: https://github.com/mrdoob/three.js/blob/master/src/math/Matrix4.js
+
+   // Performance note: Try not to allocate memory during a loop. This is done here
+   // for the ease of understanding the code samples.
+   var result = [];
+
+   var n11 = matrix[0], n12 = matrix[4], n13 = matrix[ 8], n14 = matrix[12];
+   var n21 = matrix[1], n22 = matrix[5], n23 = matrix[ 9], n24 = matrix[13];
+   var n31 = matrix[2], n32 = matrix[6], n33 = matrix[10], n34 = matrix[14];
+   var n41 = matrix[3], n42 = matrix[7], n43 = matrix[11], n44 = matrix[15];
+
+   result[ 0] = n23 * n34 * n42 - n24 * n33 * n42 + n24 * n32 * n43 - n22 * n34 * n43 - n23 * n32 * n44 + n22 * n33 * n44;
+   result[ 4] = n14 * n33 * n42 - n13 * n34 * n42 - n14 * n32 * n43 + n12 * n34 * n43 + n13 * n32 * n44 - n12 * n33 * n44;
+   result[ 8] = n13 * n24 * n42 - n14 * n23 * n42 + n14 * n22 * n43 - n12 * n24 * n43 - n13 * n22 * n44 + n12 * n23 * n44;
+   result[12] = n14 * n23 * n32 - n13 * n24 * n32 - n14 * n22 * n33 + n12 * n24 * n33 + n13 * n22 * n34 - n12 * n23 * n34;
+   result[ 1] = n24 * n33 * n41 - n23 * n34 * n41 - n24 * n31 * n43 + n21 * n34 * n43 + n23 * n31 * n44 - n21 * n33 * n44;
+   result[ 5] = n13 * n34 * n41 - n14 * n33 * n41 + n14 * n31 * n43 - n11 * n34 * n43 - n13 * n31 * n44 + n11 * n33 * n44;
+   result[ 9] = n14 * n23 * n41 - n13 * n24 * n41 - n14 * n21 * n43 + n11 * n24 * n43 + n13 * n21 * n44 - n11 * n23 * n44;
+   result[13] = n13 * n24 * n31 - n14 * n23 * n31 + n14 * n21 * n33 - n11 * n24 * n33 - n13 * n21 * n34 + n11 * n23 * n34;
+   result[ 2] = n22 * n34 * n41 - n24 * n32 * n41 + n24 * n31 * n42 - n21 * n34 * n42 - n22 * n31 * n44 + n21 * n32 * n44;
+   result[ 6] = n14 * n32 * n41 - n12 * n34 * n41 - n14 * n31 * n42 + n11 * n34 * n42 + n12 * n31 * n44 - n11 * n32 * n44;
+   result[10] = n12 * n24 * n41 - n14 * n22 * n41 + n14 * n21 * n42 - n11 * n24 * n42 - n12 * n21 * n44 + n11 * n22 * n44;
+   result[14] = n14 * n22 * n31 - n12 * n24 * n31 - n14 * n21 * n32 + n11 * n24 * n32 + n12 * n21 * n34 - n11 * n22 * n34;
+   result[ 3] = n23 * n32 * n41 - n22 * n33 * n41 - n23 * n31 * n42 + n21 * n33 * n42 + n22 * n31 * n43 - n21 * n32 * n43;
+   result[ 7] = n12 * n33 * n41 - n13 * n32 * n41 + n13 * n31 * n42 - n11 * n33 * n42 - n12 * n31 * n43 + n11 * n32 * n43;
+   result[11] = n13 * n22 * n41 - n12 * n23 * n41 - n13 * n21 * n42 + n11 * n23 * n42 + n12 * n21 * n43 - n11 * n22 * n43;
+   result[15] = n12 * n23 * n31 - n13 * n22 * n31 + n13 * n21 * n32 - n11 * n23 * n32 - n12 * n21 * n33 + n11 * n22 * n33;
+
+   var determinant = n11 * result[0] + n21 * result[4] + n31 * result[8] + n41 * result[12];
+
+   if ( determinant === 0 ) {
+     throw new Error("Can't invert matrix, determinant is 0");
+   }
+
+   for( var i=0; i < result.length; i++ ) {
+     result[i] /= determinant;
+   }
+
+   return result;
+ }
 
 }
