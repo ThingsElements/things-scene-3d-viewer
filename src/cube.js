@@ -15,11 +15,13 @@ export default class Cube {
     this._locations = {}; //All of the shader locations
     // this._buffers = []
 
+    this.setAttributesAndUniforms()
+
     // Get the rest going
     // this._buffers.push(this.createBuffersForCube(viewer._gl, this.createCubeData() ))
     this._buffers = this.createBuffersForCube(viewer._gl, this.createModelData() );
-    // this._buffers = Object.assign(this._buffers, this.createBuffersForCube(viewer._gl, this.createCubeOutlineData()))
-    this.setAttributesAndUniforms()
+
+
     // this._webglProgram = viewer.setupProgram(this);
 
     this._rotateX = 0
@@ -34,9 +36,7 @@ export default class Cube {
     var gl = this._viewer._gl;
 
     // Compute our matrices
-    this.computeModelMatrix( );
-    this.computeViewMatrix();
-    this.computePerspectiveMatrix( 0.5 );
+    this.computeModelMatrix();
 
     // Update the data going to the GPU
     this.updateAttributesAndUniforms();
@@ -57,8 +57,6 @@ export default class Cube {
 
     // Save the attribute and uniform locations
     this._locations.model = gl.getUniformLocation(webglProgram, "model");
-    this._locations.view = gl.getUniformLocation(webglProgram, "view");
-    this._locations.projection = gl.getUniformLocation(webglProgram, "projection");
 
     this._locations.position = gl.getAttribLocation(webglProgram, "position");
     this._locations.color = gl.getAttribLocation(webglProgram, "color");
@@ -72,17 +70,14 @@ export default class Cube {
 
     // Rotate a slight tilt
     var rotateX = this._viewer.rotateXMatrix( this._rotateX );
-
     // Rotate according to time
     var rotateY = this._viewer.rotateYMatrix( this._rotateY );
 
     var rotateZ = this._viewer.rotateZMatrix( this._rotateZ );
 
-    // Move slightly down
     var position = this._viewer.translateMatrix(this._model.cx, this._model.cy, this._model.cz);
 
-    // Multiply together, make sure and read them in opposite order
-    this._transforms.model = this._viewer.multiplyArrayOfMatrices([
+    var modelMtr = this._viewer.multiplyArrayOfMatrices([
       position, // step 4
       // rotateZ,
       // rotateY,  // step 3
@@ -90,67 +85,14 @@ export default class Cube {
       scale     // step 1
     ]);
 
+    // Multiply together, make sure and read them in opposite order
+    this._transforms.model = modelMtr;
+
 
     // Performance caveat: in real production code it's best not to create
     // new arrays and objects in a loop. This example chooses code clarity
     // over performance.
 
-  }
-
-  computeViewMatrix() {
-
-    var zoomInAndOut = 0.01 * this._viewer._zoom;
-
-    var moveLeftAndRight = 0.001 * this._viewer._deltaX;
-
-    var moveTopAndBottom = 0.001 * this._viewer._deltaY
-
-    var rotateX = this._viewer.rotateXMatrix( this._viewer.rotateX );
-
-    // Rotate according to time
-    var rotateY = this._viewer.rotateYMatrix( this._viewer.rotateY );
-
-    var rotateZ = this._viewer.rotateZMatrix( this._viewer.rotateZ );
-
-    // Move the camera around
-    var position = this._viewer.translateMatrix(moveLeftAndRight, moveTopAndBottom, 20 + zoomInAndOut );
-    // var position = this._viewer.translateMatrix(moveLeftAndRight, moveTopAndBottom, zoomInAndOut );
-
-
-    // Multiply together, make sure and read them in opposite order
-    var matrix = this._viewer.multiplyArrayOfMatrices([
-      // //Exercise: rotate the camera view
-      // position
-      position,
-      rotateZ,
-      rotateY,  // step 3
-      rotateX
-    ]);
-
-    // Inverse the operation for camera movements, because we are actually
-    // moving the geometry in the scene, not the camera itself.
-    this._transforms.view = this._viewer.invertMatrix( matrix );
-
-  }
-
-  computePerspectiveMatrix() {
-
-    var fieldOfViewInRadians = (Math.PI / 180 * 120);
-    // var fieldOfViewInRadians = Math.PI * 0.5;
-    // var fieldOfViewInRadians = 120;
-
-    // var fieldOfViewInRadians = 1;
-    // var aspectRatio = this._viewer._canvas.width / this._viewer._canvas.height
-    var aspectRatio = window.innerWidth / window.innerHeight
-    var nearClippingPlaneDistance = 1;
-    var farClippingPlaneDistance = 500;
-
-    this._transforms.projection = this._viewer.perspectiveMatrix(
-      fieldOfViewInRadians,
-      aspectRatio,
-      nearClippingPlaneDistance,
-      farClippingPlaneDistance
-    );
   }
 
   updateAttributesAndUniforms() {
@@ -160,8 +102,6 @@ export default class Cube {
     // Setup the color uniform that will be shared across all triangles
 
     gl.uniformMatrix4fv(this._locations.model, false, new Float32Array(this._transforms.model));
-    gl.uniformMatrix4fv(this._locations.projection, false, new Float32Array(this._transforms.projection));
-    gl.uniformMatrix4fv(this._locations.view, false, new Float32Array(this._transforms.view));
 
     // Set the positions attribute
     gl.enableVertexAttribArray(this._locations.position);
@@ -307,82 +247,6 @@ export default class Cube {
       elements: elements,
       outlineColors : outlineColors
     }
-  }
-
-  createCubeOutlineData() {
-
-      var positions = [
-        // Front face
-        -1.0, -1.0,  1.0,
-         1.0, -1.0,  1.0,
-         1.0,  1.0,  1.0,
-        -1.0,  1.0,  1.0,
-
-        // Back face
-        -1.0, -1.0, -1.0,
-        -1.0,  1.0, -1.0,
-         1.0,  1.0, -1.0,
-         1.0, -1.0, -1.0,
-
-        // Top face
-        -1.0,  1.0, -1.0,
-        -1.0,  1.0,  1.0,
-         1.0,  1.0,  1.0,
-         1.0,  1.0, -1.0,
-
-        // Bottom face
-        -1.0, -1.0, -1.0,
-         1.0, -1.0, -1.0,
-         1.0, -1.0,  1.0,
-        -1.0, -1.0,  1.0,
-
-        // Right face
-         1.0, -1.0, -1.0,
-         1.0,  1.0, -1.0,
-         1.0,  1.0,  1.0,
-         1.0, -1.0,  1.0,
-
-        // Left face
-        -1.0, -1.0, -1.0,
-        -1.0, -1.0,  1.0,
-        -1.0,  1.0,  1.0,
-        -1.0,  1.0, -1.0
-      ];
-
-      var colorsOfFaces = [
-        [0.0,  0.0,  0.0,  1.0],    // Front face: black
-        [0.0,  0.0,  0.0,  1.0],    // Back face: black
-        [0.0,  0.0,  0.0,  1.0],    // Top face: black
-        [0.0,  0.0,  0.0,  1.0],    // Bottom face: black
-        [0.0,  0.0,  0.0,  1.0],    // Right face: black
-        [0.0,  0.0,  0.0,  1.0]     // Left face: black
-      ];
-
-      var colors = [];
-
-      for (var j=0; j<6; j++) {
-        var polygonColor = colorsOfFaces[j];
-
-        for (var i=0; i<4; i++) {
-          colors = colors.concat( polygonColor );
-        }
-      }
-
-      var elements = [
-        0,  1,  2,      0,  2,  3,    // front
-        4,  5,  6,      4,  6,  7,    // back
-        8,  9,  10,     8,  10, 11,   // top
-        12, 13, 14,     12, 14, 15,   // bottom
-        16, 17, 18,     16, 18, 19,   // right
-        20, 21, 22,     20, 22, 23    // left
-      ]
-
-      return {
-        positions: positions,
-        elements: elements,
-        colors: colors
-      }
-
   }
 
 }

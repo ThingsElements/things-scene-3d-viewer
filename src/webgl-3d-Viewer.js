@@ -1,3 +1,5 @@
+import '../node_modules/gl-matrix/dist/gl-matrix-min'
+
 export default class WebGL3dViwer {
 
   constructor(canvas) {
@@ -8,44 +10,141 @@ export default class WebGL3dViwer {
     this._gl = this.createContext(canvas)
     this.setViewport(0, 0, canvas.width, canvas.height)
 
+    this._transforms = {}; // All of the matrix transforms
+    this._locations = {}; //All of the shader locations
+
+    this._mouse = {}
+
     this._webglProgram = this.setupProgram();
 
-    this._model = [
-      new ThingsScene3dViewer.Floor(this, {
-          width : 1, height : 1, depth : 1
-      }),
-      new ThingsScene3dViewer.Rack(this, {
-        cx : 0.3, cy : 0.3, cz: 0.3, width : 0.05, height : 0.05, depth : 0.05
-      }),
-      new ThingsScene3dViewer.Rack(this, {
-        cx : 0, cy : 0, cz: 0, width : 0.1, height : 0.1, depth : 0.1
-      }),
-      new ThingsScene3dViewer.Rack(this, {
-        cx : -0.5, cy : 0, cz: -0.3, width : 0.07, height : 0.04, depth : 0.1
-      })
-    ]
-
-    // this._transforms = {}; // All of the matrix transforms
-    // this._locations = {}; //All of the shader locations
 
     // Get the rest going
     // this._buffers = this.createBuffersForCube(this._gl, this.createCubeData() );
 
-    this._rotateX = 0
-    this._rotateY = 0
-    this._rotateZ = 0
+    this._rotateSeq = [{
+      rotateX :  45, rotateY :  45, rotateZ :   45
+    },
+    {
+      rotateX :   0, rotateY :  45, rotateZ :   90
+    },
+    {
+      rotateX : -45, rotateY :  45, rotateZ :  135
+    },
+    {
+      rotateX : -45, rotateY :   0, rotateZ :  180
+    },
+    {
+      rotateX : -45, rotateY : -45, rotateZ :  225
+    },
+    {
+      rotateX :   0, rotateY : -45, rotateZ :  270
+    },
+    {
+      rotateX :  45, rotateY : -45, rotateZ :  315
+    },
+    {
+      rotateX :  45, rotateY :   0, rotateZ :    0
+    }]
+
+    this._curRotateSeq = 0;
+
+    this.rotateX = 45 * (Math.PI / 180)
+    this.rotateY = 45 * (Math.PI / 180)
+    this.rotateZ = 45 * (Math.PI / 180)
 
     this._deltaX = 0
     this._deltaY = 0
-    this._zoom = 0
+    this._zoom = -400
 
-    // this.draw({
-    //   cx: 0, cy: 0, cz: 0, width: 1, height: 1, depth: 1
-    // });
-    //
-    // this.draw({
-    //   cx: 5, cy: 5, cz: 5, width: 0.5, height: 0.5, depth: 0.5
-    // });
+    this.draw();
+
+    this._model = [
+      new ThingsScene3dViewer.Floor(this, {
+        width : 1, height : 1, depth : 0.001
+      })
+      ,
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : 0.95, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : 0.75, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : 0.55, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : 0.35, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : 0.15, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : -0.05, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : -0.25, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : -0.45, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : -0.65, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.95, cy : -0.85, cz: 0.05, width : 0.05, height : 0.05, depth : 0.05
+      }),
+
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : 0.95, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : 0.75, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : 0.55, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : 0.35, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : 0.15, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : -0.05, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : -0.25, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : -0.45, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : -0.65, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.95, cy : -0.85, cz: 0.15, width : 0.05, height : 0.05, depth : 0.15
+      }),
+
+
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0, cy : 0, cz: 0.1, width : 0.1, height : 0.1, depth : 0.1
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.5, cy : 0.93, cz: 0.1, width : 0.07, height : 0.04, depth : 0.1
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : 0.5, cy : -0.93, cz: 0.1, width : 0.07, height : 0.04, depth : 0.1
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.5, cy : 0.93, cz: 0.1, width : 0.07, height : 0.04, depth : 0.1
+      }),
+      new ThingsScene3dViewer.Rack(this, {
+        cx : -0.5, cy : -0.93, cz: 0.1, width : 0.07, height : 0.04, depth : 0.1
+      })
+    ]
+
+
+    this.bindEvent()
 
   }
 
@@ -56,6 +155,7 @@ export default class WebGL3dViwer {
   }
 
   set rotateX(angle) {
+
     this._rotateX = angle
   }
 
@@ -107,15 +207,11 @@ export default class WebGL3dViwer {
     var gl = this._gl;
 
     // Compute our matrices
-    this.computeModelMatrix( option );
     this.computeViewMatrix();
-    this.computePerspectiveMatrix( 0.5 );
+    this.computePerspectiveMatrix( 45 );
 
     // Update the data going to the GPU
     this.updateAttributesAndUniforms();
-
-    // Perform the actual draw
-    gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 
     // Run the draw as a loop
     requestAnimationFrame( this.draw.bind(this, option) );
@@ -130,9 +226,8 @@ export default class WebGL3dViwer {
   }
 
 
-  setupProgram(model) {
+  setupProgram() {
 
-    var self = model || this;
     var gl = this._gl;
 
     // Setup a WebGL program
@@ -140,47 +235,53 @@ export default class WebGL3dViwer {
     gl.useProgram(webglProgram);
 
     // // Save the attribute and uniform locations
-    // self._locations.model = gl.getUniformLocation(webglProgram, "model");
-    // self._locations.view = gl.getUniformLocation(webglProgram, "view");
-    // self._locations.projection = gl.getUniformLocation(webglProgram, "projection");
-    //
-    // self._locations.position = gl.getAttribLocation(webglProgram, "position");
-    // self._locations.color = gl.getAttribLocation(webglProgram, "color");
+    this._locations.view = gl.getUniformLocation(webglProgram, "view");
+    this._locations.projection = gl.getUniformLocation(webglProgram, "projection");
 
     // Tell WebGL to test the depth when drawing
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.BLEND)
+    // gl.enable(gl.BLEND)
 
     return webglProgram;
 
   }
 
-  computePerspectiveMatrix() {
+  computePerspectiveMatrix(fov) {
 
-    // var fieldOfViewInRadians = (Math.PI / 180 * 45);
-    var fieldOfViewInRadians = Math.PI * 0.5;
-    // var fieldOfViewInRadians = 45;
+    var fieldOfViewInRadians = glMatrix.toRadian(fov || 45);
     var aspectRatio = this._canvas.width / this._canvas.height
-    // var aspectRatio = window.innerWidth / window.innerHeight
-    var nearClippingPlaneDistance = 1;
-    var farClippingPlaneDistance = 50;
+    var nearClippingPlaneDistance = 0.01;
+    var farClippingPlaneDistance = 2000;
 
-    this._transforms.projection = this.perspectiveMatrix(
+    var pMat = this.perspectiveMatrix(
       fieldOfViewInRadians,
       aspectRatio,
       nearClippingPlaneDistance,
       farClippingPlaneDistance
     );
+
+
+
+    // mat4.lookAt(pMat, [1,1,1], [0,0,-1], [0, 1, 0])
+
+    // this._transforms.projection = this.perspectiveMatrix(
+    //   fieldOfViewInRadians,
+    //   aspectRatio,
+    //   nearClippingPlaneDistance,
+    //   farClippingPlaneDistance
+    // );
+
+    this._transforms.projection = pMat
   }
 
 
   computeViewMatrix() {
 
-    var zoomInAndOut = 0.000001 * this._zoom;
+    var zoomInAndOut = 0.01 * this.zoom;
 
     var moveLeftAndRight = 0.001 * this._deltaX;
 
-    var moveTopAndBottom = 0.001 * this._deltaY
+    var moveTopAndBottom = 0.001 * this._deltaY;
 
     var rotateX = this.rotateXMatrix( this.rotateX );
 
@@ -190,11 +291,13 @@ export default class WebGL3dViwer {
     var rotateZ = this.rotateZMatrix( this.rotateZ );
 
     // Move the camera around
-    var position = this.translateMatrix(moveLeftAndRight, moveTopAndBottom, -20 + zoomInAndOut );
+    var position = this.translateMatrix(moveLeftAndRight, moveTopAndBottom, zoomInAndOut );
+    // var position = this.translateMatrix(moveLeftAndRight, moveTopAndBottom, 0 );
 
+    // mat4.lookAt(position, [0,0,this.zoom*0.0001], [0,0,-1], [0, 1, 0])
 
     // Multiply together, make sure and read them in opposite order
-    this._transforms.view = this.multiplyArrayOfMatrices([
+    var matrix = this.multiplyArrayOfMatrices([
       // //Exercise: rotate the camera view
       // position
       position,
@@ -203,41 +306,11 @@ export default class WebGL3dViwer {
       rotateX
     ]);
 
+
     // Inverse the operation for camera movements, because we are actually
     // moving the geometry in the scene, not the camera itself.
-    // this._transforms.view = MDN.invertMatrix( matrix );
-
-  }
-
-  computeModelMatrix(option) {
-
-    //Scale up
-    var scale = this.scaleMatrix(option.width, option.height, option.depth);
-
-    // Rotate a slight tilt
-    var rotateX = this.rotateXMatrix( this.rotateX );
-
-    // Rotate according to time
-    var rotateY = this.rotateYMatrix( this.rotateY );
-
-    var rotateZ = this.rotateZMatrix( this.rotateZ );
-
-    // Move slightly down
-    var position = this.translateMatrix(option.cx, option.cy, option.cz);
-
-    // Multiply together, make sure and read them in opposite order
-    this._transforms.model = this.multiplyArrayOfMatrices([
-      position, // step 4
-      // rotateZ,
-      // rotateY,  // step 3
-      // rotateX,  // step 2
-      scale     // step 1
-    ]);
-
-
-    // Performance caveat: in real production code it's best not to create
-    // new arrays and objects in a loop. This example chooses code clarity
-    // over performance.
+    // this._transforms.view = this._viewer.invertMatrix( matrix );
+    this._transforms.view = matrix;
 
   }
 
@@ -247,126 +320,47 @@ export default class WebGL3dViwer {
     var gl = this._gl;
 
     // Setup the color uniform that will be shared across all triangles
-    gl.uniformMatrix4fv(this._locations.model, false, new Float32Array(this._transforms.model));
     gl.uniformMatrix4fv(this._locations.projection, false, new Float32Array(this._transforms.projection));
     gl.uniformMatrix4fv(this._locations.view, false, new Float32Array(this._transforms.view));
 
-    // Set the positions attribute
-    gl.enableVertexAttribArray(this._locations.position);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.positions);
-    gl.vertexAttribPointer(this._locations.position, 3, gl.FLOAT, false, 0, 0);
-
-    // Set the colors attribute
-    gl.enableVertexAttribArray(this._locations.color);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers.colors);
-    gl.vertexAttribPointer(this._locations.color, 4, gl.FLOAT, false, 0, 0);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffers.elements );
-
   }
+
+
+  /* Event */
+
+  bindEvent() {
+    var self = this;
+
+    this._canvas.onmousemove = function(e){
+
+      self._mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+      self._mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+    }
+  }
+
+  incRotateSeq() {
+    var seq = (this._curRotateSeq + 1) % (this._rotateSeq.length );
+
+    this.rotateX = this._rotateSeq[seq].rotateX * Math.PI / 180
+    this.rotateY = this._rotateSeq[seq].rotateY * Math.PI / 180
+    this.rotateZ = this._rotateSeq[seq].rotateZ * Math.PI / 180
+
+    this._curRotateSeq = seq;
+  }
+
+  // decRotateSeq() {
+  //   var seq = (this._curRotateSeq + 1) % (this._rotateSeq.length );
+  //
+  //   this.rotateX = this._rotateSeq[seq].rotateX * Math.PI / 180
+  //   this.rotateY = this._rotateSeq[seq].rotateY * Math.PI / 180
+  //   this.rotateZ = this._rotateSeq[seq].rotateZ * Math.PI / 180
+  //
+  //   this._curRotateSeq = seq;
+  // }
 
 
   /* MDN Library */
-
-
-  // Define the data that is needed to make a 3d cube
-  createCubeData() {
-
-    var positions = [
-      // Front face
-      -1.0, -1.0,  1.0,
-       1.0, -1.0,  1.0,
-       1.0,  1.0,  1.0,
-      -1.0,  1.0,  1.0,
-
-      // Back face
-      -1.0, -1.0, -1.0,
-      -1.0,  1.0, -1.0,
-       1.0,  1.0, -1.0,
-       1.0, -1.0, -1.0,
-
-      // Top face
-      -1.0,  1.0, -1.0,
-      -1.0,  1.0,  1.0,
-       1.0,  1.0,  1.0,
-       1.0,  1.0, -1.0,
-
-      // Bottom face
-      -1.0, -1.0, -1.0,
-       1.0, -1.0, -1.0,
-       1.0, -1.0,  1.0,
-      -1.0, -1.0,  1.0,
-
-      // Right face
-       1.0, -1.0, -1.0,
-       1.0,  1.0, -1.0,
-       1.0,  1.0,  1.0,
-       1.0, -1.0,  1.0,
-
-      // Left face
-      -1.0, -1.0, -1.0,
-      -1.0, -1.0,  1.0,
-      -1.0,  1.0,  1.0,
-      -1.0,  1.0, -1.0
-    ];
-
-    var colorsOfFaces = [
-      [0.3,  1.0,  1.0,  1.0],    // Front face: cyan
-      [1.0,  0.3,  0.3,  1.0],    // Back face: red
-      [0.3,  1.0,  0.3,  1.0],    // Top face: green
-      [0.3,  0.3,  1.0,  1.0],    // Bottom face: blue
-      [1.0,  1.0,  0.3,  1.0],    // Right face: yellow
-      [1.0,  0.3,  1.0,  1.0]     // Left face: purple
-    ];
-
-    var colors = [];
-
-    for (var j=0; j<6; j++) {
-      var polygonColor = colorsOfFaces[j];
-
-      for (var i=0; i<4; i++) {
-        colors = colors.concat( polygonColor );
-      }
-    }
-
-    var elements = [
-      0,  1,  2,      0,  2,  3,    // front
-      4,  5,  6,      4,  6,  7,    // back
-      8,  9,  10,     8,  10, 11,   // top
-      12, 13, 14,     12, 14, 15,   // bottom
-      16, 17, 18,     16, 18, 19,   // right
-      20, 21, 22,     20, 22, 23    // left
-    ]
-
-    return {
-      positions: positions,
-      elements: elements,
-      colors: colors
-    }
-  }
-
-  // Take the data for a cube and bind the buffers for it.
-  // Return an object collection of the buffers
-  createBuffersForCube( gl, cube ) {
-
-    var positions = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positions);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.positions), gl.STATIC_DRAW);
-
-    var colors = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colors);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube.colors), gl.STATIC_DRAW);
-
-    var elements = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elements);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cube.elements), gl.STATIC_DRAW);
-
-    return {
-      positions: positions,
-      colors: colors,
-      elements: elements
-    }
-  }
 
   matrixArrayToCssMatrix(array) {
     return "matrix3d(" + array.join(',') + ")";
@@ -377,9 +371,9 @@ export default class WebGL3dViwer {
     var x = point[0], y = point[1], z = point[2], w = point[3];
 
     var c1r1 = matrix[ 0], c2r1 = matrix[ 1], c3r1 = matrix[ 2], c4r1 = matrix[ 3],
-        c1r2 = matrix[ 4], c2r2 = matrix[ 5], c3r2 = matrix[ 6], c4r2 = matrix[ 7],
-        c1r3 = matrix[ 8], c2r3 = matrix[ 9], c3r3 = matrix[10], c4r3 = matrix[11],
-        c1r4 = matrix[12], c2r4 = matrix[13], c3r4 = matrix[14], c4r4 = matrix[15];
+    c1r2 = matrix[ 4], c2r2 = matrix[ 5], c3r2 = matrix[ 6], c4r2 = matrix[ 7],
+    c1r3 = matrix[ 8], c2r3 = matrix[ 9], c3r3 = matrix[10], c4r3 = matrix[11],
+    c1r4 = matrix[12], c2r4 = matrix[13], c3r4 = matrix[14], c4r4 = matrix[15];
 
     return [
       x*c1r1 + y*c1r2 + z*c1r3 + w*c1r4,
@@ -397,9 +391,9 @@ export default class WebGL3dViwer {
     var result = [];
 
     var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
-        a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
-        a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
-        a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+    a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
+    a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
+    a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 
     // Cache only the current line of the second matrix
     var b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
@@ -446,10 +440,10 @@ export default class WebGL3dViwer {
     var sin = Math.sin;
 
     return [
-         1,       0,        0,     0,
-         0,  cos(a),  -sin(a),     0,
-         0,  sin(a),   cos(a),     0,
-         0,       0,        0,     1
+      1,       0,        0,     0,
+      0,  cos(a),  -sin(a),     0,
+      0,  sin(a),   cos(a),     0,
+      0,       0,        0,     1
     ];
   }
 
@@ -459,10 +453,10 @@ export default class WebGL3dViwer {
     var sin = Math.sin;
 
     return [
-       cos(a),   0, sin(a),   0,
-            0,   1,      0,   0,
+      cos(a),   0, sin(a),   0,
+      0,   1,      0,   0,
       -sin(a),   0, cos(a),   0,
-            0,   0,      0,   1
+      0,   0,      0,   1
     ];
   }
 
@@ -474,27 +468,27 @@ export default class WebGL3dViwer {
     return [
       cos(a), -sin(a),    0,    0,
       sin(a),  cos(a),    0,    0,
-           0,       0,    1,    0,
-           0,       0,    0,    1
+      0,       0,    1,    0,
+      0,       0,    0,    1
     ];
   }
 
   translateMatrix(x, y, z) {
-  	return [
-  	    1,    0,    0,   0,
-  	    0,    1,    0,   0,
-  	    0,    0,    1,   0,
-  	    x,    y,    z,   1
-  	];
+    return [
+      1,    0,    0,   0,
+      0,    1,    0,   0,
+      0,    0,    1,   0,
+      x,    y,    z,   1
+    ];
   }
 
   scaleMatrix(w, h, d) {
-  	return [
-  	    w,    0,    0,   0,
-  	    0,    h,    0,   0,
-  	    0,    0,    d,   0,
-  	    0,    0,    0,   1
-  	];
+    return [
+      w,    0,    0,   0,
+      0,    h,    0,   0,
+      0,    0,    d,   0,
+      0,    0,    0,   1
+    ];
   }
 
   perspectiveMatrix(fieldOfViewInRadians, aspectRatio, near, far) {
@@ -502,10 +496,10 @@ export default class WebGL3dViwer {
     // Construct a perspective matrix
 
     /*
-       Field of view - the angle in radians of what's in view along the Y axis
-       Aspect Ratio - the ratio of the canvas, typically canvas.width / canvas.height
-       Near - Anything before this point in the Z direction gets clipped (outside of the clip space)
-       Far - Anything after this point in the Z direction gets clipped (outside of the clip space)
+    Field of view - the angle in radians of what's in view along the Y axis
+    Aspect Ratio - the ratio of the canvas, typically canvas.width / canvas.height
+    Near - Anything before this point in the Z direction gets clipped (outside of the clip space)
+    Far - Anything after this point in the Z direction gets clipped (outside of the clip space)
     */
 
     var f = 1.0 / Math.tan(fieldOfViewInRadians / 2);
@@ -532,9 +526,9 @@ export default class WebGL3dViwer {
     var row4col3 = (far + near) * nf;
 
     return [
-       -2 * lr,        0,        0, 0,
-             0,  -2 * bt,        0, 0,
-             0,        0,   2 * nf, 0,
+      -2 * lr,        0,        0, 0,
+      0,  -2 * bt,        0, 0,
+      0,        0,   2 * nf, 0,
       row4col1, row4col2, row4col3, 1
     ];
   }
@@ -621,45 +615,45 @@ export default class WebGL3dViwer {
 
   invertMatrix( matrix ) {
 
-   // Adapted from: https://github.com/mrdoob/three.js/blob/master/src/math/Matrix4.js
+    // Adapted from: https://github.com/mrdoob/three.js/blob/master/src/math/Matrix4.js
 
-   // Performance note: Try not to allocate memory during a loop. This is done here
-   // for the ease of understanding the code samples.
-   var result = [];
+    // Performance note: Try not to allocate memory during a loop. This is done here
+    // for the ease of understanding the code samples.
+    var result = [];
 
-   var n11 = matrix[0], n12 = matrix[4], n13 = matrix[ 8], n14 = matrix[12];
-   var n21 = matrix[1], n22 = matrix[5], n23 = matrix[ 9], n24 = matrix[13];
-   var n31 = matrix[2], n32 = matrix[6], n33 = matrix[10], n34 = matrix[14];
-   var n41 = matrix[3], n42 = matrix[7], n43 = matrix[11], n44 = matrix[15];
+    var n11 = matrix[0], n12 = matrix[4], n13 = matrix[ 8], n14 = matrix[12];
+    var n21 = matrix[1], n22 = matrix[5], n23 = matrix[ 9], n24 = matrix[13];
+    var n31 = matrix[2], n32 = matrix[6], n33 = matrix[10], n34 = matrix[14];
+    var n41 = matrix[3], n42 = matrix[7], n43 = matrix[11], n44 = matrix[15];
 
-   result[ 0] = n23 * n34 * n42 - n24 * n33 * n42 + n24 * n32 * n43 - n22 * n34 * n43 - n23 * n32 * n44 + n22 * n33 * n44;
-   result[ 4] = n14 * n33 * n42 - n13 * n34 * n42 - n14 * n32 * n43 + n12 * n34 * n43 + n13 * n32 * n44 - n12 * n33 * n44;
-   result[ 8] = n13 * n24 * n42 - n14 * n23 * n42 + n14 * n22 * n43 - n12 * n24 * n43 - n13 * n22 * n44 + n12 * n23 * n44;
-   result[12] = n14 * n23 * n32 - n13 * n24 * n32 - n14 * n22 * n33 + n12 * n24 * n33 + n13 * n22 * n34 - n12 * n23 * n34;
-   result[ 1] = n24 * n33 * n41 - n23 * n34 * n41 - n24 * n31 * n43 + n21 * n34 * n43 + n23 * n31 * n44 - n21 * n33 * n44;
-   result[ 5] = n13 * n34 * n41 - n14 * n33 * n41 + n14 * n31 * n43 - n11 * n34 * n43 - n13 * n31 * n44 + n11 * n33 * n44;
-   result[ 9] = n14 * n23 * n41 - n13 * n24 * n41 - n14 * n21 * n43 + n11 * n24 * n43 + n13 * n21 * n44 - n11 * n23 * n44;
-   result[13] = n13 * n24 * n31 - n14 * n23 * n31 + n14 * n21 * n33 - n11 * n24 * n33 - n13 * n21 * n34 + n11 * n23 * n34;
-   result[ 2] = n22 * n34 * n41 - n24 * n32 * n41 + n24 * n31 * n42 - n21 * n34 * n42 - n22 * n31 * n44 + n21 * n32 * n44;
-   result[ 6] = n14 * n32 * n41 - n12 * n34 * n41 - n14 * n31 * n42 + n11 * n34 * n42 + n12 * n31 * n44 - n11 * n32 * n44;
-   result[10] = n12 * n24 * n41 - n14 * n22 * n41 + n14 * n21 * n42 - n11 * n24 * n42 - n12 * n21 * n44 + n11 * n22 * n44;
-   result[14] = n14 * n22 * n31 - n12 * n24 * n31 - n14 * n21 * n32 + n11 * n24 * n32 + n12 * n21 * n34 - n11 * n22 * n34;
-   result[ 3] = n23 * n32 * n41 - n22 * n33 * n41 - n23 * n31 * n42 + n21 * n33 * n42 + n22 * n31 * n43 - n21 * n32 * n43;
-   result[ 7] = n12 * n33 * n41 - n13 * n32 * n41 + n13 * n31 * n42 - n11 * n33 * n42 - n12 * n31 * n43 + n11 * n32 * n43;
-   result[11] = n13 * n22 * n41 - n12 * n23 * n41 - n13 * n21 * n42 + n11 * n23 * n42 + n12 * n21 * n43 - n11 * n22 * n43;
-   result[15] = n12 * n23 * n31 - n13 * n22 * n31 + n13 * n21 * n32 - n11 * n23 * n32 - n12 * n21 * n33 + n11 * n22 * n33;
+    result[ 0] = n23 * n34 * n42 - n24 * n33 * n42 + n24 * n32 * n43 - n22 * n34 * n43 - n23 * n32 * n44 + n22 * n33 * n44;
+    result[ 4] = n14 * n33 * n42 - n13 * n34 * n42 - n14 * n32 * n43 + n12 * n34 * n43 + n13 * n32 * n44 - n12 * n33 * n44;
+    result[ 8] = n13 * n24 * n42 - n14 * n23 * n42 + n14 * n22 * n43 - n12 * n24 * n43 - n13 * n22 * n44 + n12 * n23 * n44;
+    result[12] = n14 * n23 * n32 - n13 * n24 * n32 - n14 * n22 * n33 + n12 * n24 * n33 + n13 * n22 * n34 - n12 * n23 * n34;
+    result[ 1] = n24 * n33 * n41 - n23 * n34 * n41 - n24 * n31 * n43 + n21 * n34 * n43 + n23 * n31 * n44 - n21 * n33 * n44;
+    result[ 5] = n13 * n34 * n41 - n14 * n33 * n41 + n14 * n31 * n43 - n11 * n34 * n43 - n13 * n31 * n44 + n11 * n33 * n44;
+    result[ 9] = n14 * n23 * n41 - n13 * n24 * n41 - n14 * n21 * n43 + n11 * n24 * n43 + n13 * n21 * n44 - n11 * n23 * n44;
+    result[13] = n13 * n24 * n31 - n14 * n23 * n31 + n14 * n21 * n33 - n11 * n24 * n33 - n13 * n21 * n34 + n11 * n23 * n34;
+    result[ 2] = n22 * n34 * n41 - n24 * n32 * n41 + n24 * n31 * n42 - n21 * n34 * n42 - n22 * n31 * n44 + n21 * n32 * n44;
+    result[ 6] = n14 * n32 * n41 - n12 * n34 * n41 - n14 * n31 * n42 + n11 * n34 * n42 + n12 * n31 * n44 - n11 * n32 * n44;
+    result[10] = n12 * n24 * n41 - n14 * n22 * n41 + n14 * n21 * n42 - n11 * n24 * n42 - n12 * n21 * n44 + n11 * n22 * n44;
+    result[14] = n14 * n22 * n31 - n12 * n24 * n31 - n14 * n21 * n32 + n11 * n24 * n32 + n12 * n21 * n34 - n11 * n22 * n34;
+    result[ 3] = n23 * n32 * n41 - n22 * n33 * n41 - n23 * n31 * n42 + n21 * n33 * n42 + n22 * n31 * n43 - n21 * n32 * n43;
+    result[ 7] = n12 * n33 * n41 - n13 * n32 * n41 + n13 * n31 * n42 - n11 * n33 * n42 - n12 * n31 * n43 + n11 * n32 * n43;
+    result[11] = n13 * n22 * n41 - n12 * n23 * n41 - n13 * n21 * n42 + n11 * n23 * n42 + n12 * n21 * n43 - n11 * n22 * n43;
+    result[15] = n12 * n23 * n31 - n13 * n22 * n31 + n13 * n21 * n32 - n11 * n23 * n32 - n12 * n21 * n33 + n11 * n22 * n33;
 
-   var determinant = n11 * result[0] + n21 * result[4] + n31 * result[8] + n41 * result[12];
+    var determinant = n11 * result[0] + n21 * result[4] + n31 * result[8] + n41 * result[12];
 
-   if ( determinant === 0 ) {
-     throw new Error("Can't invert matrix, determinant is 0");
-   }
+    if ( determinant === 0 ) {
+      throw new Error("Can't invert matrix, determinant is 0");
+    }
 
-   for( var i=0; i < result.length; i++ ) {
-     result[i] /= determinant;
-   }
+    for( var i=0; i < result.length; i++ ) {
+      result[i] /= determinant;
+    }
 
-   return result;
- }
+    return result;
+  }
 
 }

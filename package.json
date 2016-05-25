@@ -37,7 +37,8 @@
     "mocha": "^2.3.4",
     "should": "^8.0.2",
     "uglifyjs": "^2.4.10",
-    "watchify": "^3.3.1"
+    "watchify": "^3.3.1",
+    "gl-matrix" : "^2.3.2"
   },
   "dependencies": {
     "things-scene": "^0.4.15"
