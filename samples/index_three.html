@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Mouseover (Three.js)</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+  body {
+  	font-family: Monospace;
+  	font-weight: bold;
+  	/*background-color: #ccccff;*/
+  	margin: 0px;
+  	overflow: hidden;
+  }
+  #tooltip {
+    position: absolute;
+    left: 0;
+    top : 0;
+    max-width : 100px;
+    background-color: #fff;
+    border : 3px solid #666;
+    padding: 5px 10px;
+    border-radius: 10px;
+  }
+  </style>
+
+</head>
+<body>
+
+<!-- <script src="three.min.js"></script>
+<script src="Projector.js"></script>
+<script src="Detector.js"></script>
+<script src="OrbitControls.js"></script>
+<script src="THREEx.KeyboardState.js"></script>
+<script src="THREEx.FullScreen.js"></script>
+<script src="THREEx.WindowResize.js"></script> -->
+<script src="../things-scene-3d-viewer.js" type="text/javascript"></script>
+
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<div id="tooltip">
+  이것은 툴팁
+</div>
+<script>
+
+  var jsons = {
+    width: 1200,
+    height: 800,
+    unit: 'cm',
+    components: [{
+      type : 'rack',
+      location : 'LOC',
+      left : 100,
+      top : 50,
+      width : 300,
+      height : 200,
+      depth : 100,
+      shelves : 5
+    }]
+  }
+
+  var viewer = new ThingsScene3dViewer.WebGL3dViwer("ThreeJS", jsons)
+</script>
+
+</body>
+</html>
