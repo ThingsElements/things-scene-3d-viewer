@@ -4,13 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile": "./node_modules/.bin/babel --presets es2015 -d lib/ src/",
-    "prepublish": "npm run compile",
-    "test": "./node_modules/.bin/mocha --require should --compilers js:babel-core/register test/**/test-*.js",
-    "pretest": "npm run compile",
-    "watchify": "watchify --extension=js -o things-scene-3d-viewer.js index.js",
-    "serve": "watchify --extension=js -o things-scene-3d-viewer.js index.js & python -m SimpleHTTPServer",
-    "build": "browserify index.js | uglifyjs -c > things-scene-3d-viewer-min.js"
+    "serve": "watchify src/*.js -o things-scene-3d-viewer.js src/index.js & polyserve",
+    "build": "browserify src/index.js -o things-scene-3d-viewer.js && uglifyjs things-scene-3d-viewer.js -m -c -o things-scene-3d-viewer-min.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +22,7 @@
       "babelify"
     ]
   },
+
   "devDependencies": {
     "babel-cli": "^6.3.17",
     "babel-core": "^6.3.26",
@@ -40,7 +36,8 @@
     "watchify": "^3.3.1",
     "gl-matrix" : "^2.3.2"
   },
+
   "dependencies": {
-    "things-scene": "^0.4.15"
+    "things-scene": "^0.5.0"
   }
 }

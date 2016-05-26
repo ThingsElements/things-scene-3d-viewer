@@ -1,0 +1,102 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>things-scene-3d-viewer Demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+
+    <link rel="import" href="../things-scene-3d-viewer.html">
+  </head>
+  <body unresolved>
+
+    <template is="dom-bind" id="app">
+      <style is="custom-style">
+      :root {
+        --things-scene-3d-viewer: {
+          width: 100%;
+          height: 100%;
+        }
+        --things-scene-3d-viewer-map: {
+          width: 100%;
+          height: 100%;
+        }
+      }
+
+      body: {
+        display: block;
+      }
+
+      div {
+        width: 400px;
+        height: 300px;
+      }
+      </style>
+
+      <p>An example of <code>&lt;things-scene-3d-viewer&gt;</code>:</p>
+
+      <div>
+        <things-scene-3d-viewer model="[[model]]">
+        </things-scene-3d-viewer>
+      </div>
+
+      <button id="change">Change Model</button>
+
+    </template>
+
+    <script>
+      window.addEventListener('WebComponentsReady', function(e) {
+        var app = document.querySelector('#app')
+
+        app.$.change.addEventListener('click', function() {
+
+          app.model = {
+            width: 1200,
+            height: 800,
+            unit: 'cm',
+            components: [{
+              type : 'rack',
+              location : 'LOC',
+              left : 700,
+              top : 500,
+              width : 200,
+              height : 300,
+              depth : 100,
+              shelves : 3
+            }]
+          }
+
+        })
+
+        var model = {
+          width: 1200,
+          height: 800,
+          unit: 'cm',
+          components: [{
+            type : 'rack',
+            location : 'LOC',
+            left : 100,
+            top : 50,
+            width : 300,
+            height : 200,
+            depth : 100,
+            shelves : 5
+          }]
+        }
+
+        app.model = model
+      });
+    </script>
+
+  </body>
+</html>

@@ -2,10 +2,10 @@ import THREE from './threejs'
 import THREEx from './threejs/threeX'
 import Rack from './rack'
 
-export default class WebGL3dViwer {
+export default class WebGL3dViewer {
 
 
-  constructor(targetDomId, model) {
+  constructor(target, model) {
 
     // PROPERTY
     this._mouse = { x: 0, y: 0 }
@@ -34,7 +34,10 @@ export default class WebGL3dViwer {
 		this._renderer = new THREE.WebGLRenderer( {antialias:true} );
   	this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
 
-  	this._container = document.getElementById( targetDomId );
+    if(typeof target == 'string')
+  	  this._container = document.getElementById( target );
+    else
+      this._container = target
   	this._container.appendChild( this._renderer.domElement );
   	// EVENTS
   	THREEx.WindowResize(this._renderer, this._camera);
@@ -71,9 +74,9 @@ export default class WebGL3dViwer {
   createFloor() {
 
     // FLOOR
-    var floorTexture = new THREE.TextureLoader().load('Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
+    var floorTexture = new THREE.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
 
-  	// var floorTexture = new THREE.ImageUtils.loadTexture( 'checkerboard.jpg' );
+  	// var floorTexture = new THREE.ImageUtils.loadTexture( 'textures/checkerboard.jpg' );
   	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
   	floorTexture.repeat.set( 10, 10 );
   	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );

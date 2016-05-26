@@ -1,27 +1,29 @@
 {
   "name": "things-scene-3d-viewer",
-  "description": "",
-  "main": "things-scene-3d-viewer.js",
+  "version": "0.0.1",
   "authors": [
     "Stellan Gil <lotstar87@gmail.com>"
   ],
-  "license": "MIT",
+  "description": "An element providing a solution to no problem in particular.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "seed"
+  ],
+  "main": "things-scene-3d-viewer.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
   "homepage": "https://github.com/ThingsElements/things-scene-3d-viewer",
   "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests",
-    "src",
-    "lib",
-    "DEPLOYMENT.md",
-    "DEVELOPMENT.md",
-    "things-scene-3d-viewer.js"
+    "/.*",
+    "/test/"
   ],
   "dependencies": {
-    "things-scene": "^0.4.15"
+    "polymer": "Polymer/polymer#^1.2.0",
+    "iron-elements": "PolymerElements/iron-elements#^1.0.0",
+    "paper-elements": "PolymerElements/paper-elements#^1.0.1"
   },
   "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "^4.0.0"
   }
 }
