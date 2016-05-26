@@ -27,7 +27,7 @@ export default class WebGL3dViwer {
 
     this._camera = new THREE.PerspectiveCamera( this.VIEW_ANGLE, this.ASPECT, this.NEAR, this.FAR);
     this._scene.add(this._camera);
-    this._camera.position.set(0,150,400);
+    this._camera.position.set(0,600,1600);
     this._camera.lookAt(this._scene.position);
 
   	// RENDERER
@@ -118,6 +118,8 @@ export default class WebGL3dViwer {
 
   update() {
 
+    var tooltip = document.getElementById("tooltip");
+
     	// find intersections
 
     	// create a Ray with origin at the mouse position
@@ -147,7 +149,7 @@ export default class WebGL3dViwer {
     			this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
     			// set a new color for closest object
     			// this.INTERSECTED.material.color.setHex( 0xffff00 );
-          var tooltip = document.getElementById("tooltip");
+
 
           if( this.INTERSECTED._type === 'rack' ) {
             tooltip.textContent = '이것의 location은 ' + this.INTERSECTED._location + " 입니다."
@@ -173,6 +175,8 @@ export default class WebGL3dViwer {
     		// remove previous intersection object reference
     		//     by setting current intersection object to "nothing"
     		this.INTERSECTED = null;
+
+        tooltip.style.display = 'none'
     	}
 
 

@@ -32,12 +32,12 @@ export default class Rack {
 
       let cx = (model.left + (model.width/2)) - canvasSize.width/2;
       let cy = (model.top + (model.height/2)) - canvasSize.height/2;
-      let cz = (i + 0.5) * model.depth + 3
+      let cz = (i + 0.5) * model.depth + 5
 
       var object = this.createRackFrame(model.width, model.height, model.depth)
-      // object._type = model.type;
+      object._type = model.type;
       object._model = model;
-      // object._location = model.location + "_" + (i+1)
+      object._location = model.location + "_" + (i+1)
       object.position.set(cx, cz, cy)
 
       scene.add(object)
@@ -45,11 +45,15 @@ export default class Rack {
       var board = this.createRackBoard(model.width, model.height)
       board.position.set(cx, cz + model.depth/2, cy)
     	board.rotation.x = Math.PI / 2;
+      board._location = model.location + "_" + (i+1)
+      board._type = model.type
       scene.add(board)
 
       var board = this.createRackBoard(model.width, model.height)
       board.position.set(cx, cz - model.depth/2, cy)
     	board.rotation.x = Math.PI / 2;
+      board._location = model.location + "_" + (i+1)
+      board._type = model.type
       scene.add(board)
 
       var board = this.createRackBoard(model.width, model.depth)
@@ -76,7 +80,7 @@ export default class Rack {
 
   createRackBoard(w, h) {
 
-  	var boardMaterial = new THREE.MeshBasicMaterial( { color : 'rgba(100, 200, 100, 0)', side: THREE.DoubleSide } );
+  	var boardMaterial = new THREE.MeshBasicMaterial( { color : '#cfcfcf', side: THREE.DoubleSide } );
   	var boardGeometry = new THREE.PlaneGeometry(w, h, 10, 10);
   	var board = new THREE.Mesh(boardGeometry, boardMaterial);
 
