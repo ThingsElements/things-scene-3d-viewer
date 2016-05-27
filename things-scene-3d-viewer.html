@@ -16,7 +16,7 @@ Scene 모델을 3D로 렌더링해서 보여주는 컴포넌트이다.
 
 Example:
 
-    <things-scene-3d-viewer model="[[model]]">
+    <things-scene-3d-viewer model="[[model]]" data="[[data]]">
     </things-scene-3d-viewer>
 
 @demo demo/index.html
@@ -27,6 +27,8 @@ Example:
   <template>
     <style>
       :host {
+        width : 100%;
+        height: 100%;
         display: block;
         overflow: hidden;
         margin: 0px;
@@ -44,6 +46,7 @@ Example:
         border : 3px solid #666;
         padding: 5px 10px;
         border-radius: 10px;
+        display: none;
       }
     </style>
 
@@ -65,6 +68,9 @@ Example:
       properties: {
         model: {
           type: Object
+        },
+        data : {
+          type : Object
         }
       },
 
@@ -74,6 +80,7 @@ Example:
 
       observers: [
         "_onModelChanged(model)",
+        "_onDataChanged(data)"
       ],
 
       ready: function() {
@@ -87,6 +94,21 @@ Example:
       },
 
       _onIronResize: function(e) {
+        if(!this.viewer)
+          return;
+
+        var renderer = this.viewer._renderer;
+        var camera = this.viewer._camera;
+
+        this.viewer.SCREEN_WIDTH = this.clientWidth
+        this.viewer.SCREEN_HEIGHT = this.clientHeight
+
+        // notify the renderer of the size change
+        // renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setSize( this.viewer.SCREEN_WIDTH, this.viewer.SCREEN_HEIGHT );
+        // update the camera
+        camera.aspect	= this.viewer.SCREEN_WIDTH / this.viewer.SCREEN_HEIGHT;
+        camera.updateProjectionMatrix();
       },
 
       _onModelChanged: function(model) {
@@ -94,6 +116,37 @@ Example:
         //   this.viewer.dispose()
 
         this.viewer = new ThingsScene3dViewer.WebGL3dViewer(this, model)
+      },
+
+      _onDataChanged: function(data) {
+
+        data.rows.forEach(d =>{
+          let colorR = '#ff0000'
+          let colorG = '#00ff00'
+          let colorB = '#0000ff'
+
+          var color = colorR
+
+          if(d.status === 0) {
+            color = colorR
+          } else if (d.status === 1) {
+            color = colorG
+          } else if (d.status === 2) {
+            color = colorB
+          }
+
+
+
+          console.log(color)
+          // this.viewer._scene.getObjectByName(d.loc).material.color.set(color)
+          this.viewer._scene.children.forEach(obj => {
+            if(obj.type === 'rack'){
+              obj.userData.stock.material.color.set(color)
+            }
+          })
+        })
+
+
       }
 
     });

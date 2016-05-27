@@ -7,6 +7,11 @@ export default class WebGL3dViewer {
 
   constructor(target, model) {
 
+    if(typeof target == 'string')
+  	  this._container = document.getElementById( target );
+    else
+      this._container = target
+
     // PROPERTY
     this._mouse = { x: 0, y: 0 }
     this.INTERSECTED
@@ -18,8 +23,8 @@ export default class WebGL3dViewer {
     this._scene = new THREE.Scene();
 
     // CAMERA
-    this.SCREEN_WIDTH = window.innerWidth;
-    this.SCREEN_HEIGHT = window.innerHeight;
+    this.SCREEN_WIDTH = this._container.clientWidth;
+    this.SCREEN_HEIGHT = this._container.clientHeight;
     this.VIEW_ANGLE = 45;
     this.ASPECT = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
     this.NEAR = 0.1;
@@ -34,14 +39,7 @@ export default class WebGL3dViewer {
 		this._renderer = new THREE.WebGLRenderer( {antialias:true} );
   	this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
 
-    if(typeof target == 'string')
-  	  this._container = document.getElementById( target );
-    else
-      this._container = target
   	this._container.appendChild( this._renderer.domElement );
-  	// EVENTS
-  	THREEx.WindowResize(this._renderer, this._camera);
-  	THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
 
     // KEYBOARD
     this._keyboard = new THREEx.KeyboardState();
@@ -66,6 +64,7 @@ export default class WebGL3dViewer {
 
     this.init()
 
+    // EVENTS
     this.bindEvents()
 
     this.animate()
@@ -80,9 +79,11 @@ export default class WebGL3dViewer {
   	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
   	floorTexture.repeat.set( 10, 10 );
   	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-  	var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);
+  	var floorGeometry = new THREE.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
+  	// var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+  	// var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);
   	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  	floor.position.y = -0.5;
+  	floor.position.y = -1;
   	floor.rotation.x = Math.PI / 2;
   	this._scene.add(floor);
 
@@ -100,9 +101,21 @@ export default class WebGL3dViewer {
 
   createObjects(models) {
 
+    let scene = this._scene
+    let model = this._model;
+
+    let canvasSize = {
+      width : this.FLOOR_WIDTH,
+      height: this.FLOOR_HEIGHT
+    }
+
     models.forEach(model => {
-      if(model.type === 'rack')
-        new Rack(this, model)
+      if(model.type === 'rack'){
+        Rack.createRacks(model, canvasSize).forEach(rack => {
+          scene.add(rack)
+        })
+      }
+
     })
 
   }
@@ -132,7 +145,7 @@ export default class WebGL3dViewer {
     	var ray = new THREE.Raycaster( this._camera.position, vector.sub( this._camera.position ).normalize() );
 
     	// create an array containing all objects in the scene with which the ray intersects
-    	var intersects = ray.intersectObjects( this._scene.children );
+    	var intersects = ray.intersectObjects( this._scene.children, true );
 
     	// INTERSECTED = the object in the scene currently closest to the camera
     	//		and intersected by the Ray projected from the mouse position
@@ -153,15 +166,14 @@ export default class WebGL3dViewer {
     			// set a new color for closest object
     			// this.INTERSECTED.material.color.setHex( 0xffff00 );
 
+          if( this.INTERSECTED.parent.type === 'rack' ) {
+            tooltip.textContent = '이것의 location은 ' + this.INTERSECTED.parent.userData.location + " 입니다."
 
-          if( this.INTERSECTED._type === 'rack' ) {
-            tooltip.textContent = '이것의 location은 ' + this.INTERSECTED._location + " 입니다."
+            var mouseX = (this._mouse.x + 1) / 2 * this.SCREEN_WIDTH
+            var mouseY = (-this._mouse.y + 1 ) / 2 * this.SCREEN_HEIGHT
 
-            var mouseX = (this._mouse.x + 1) / 2 * window.innerWidth
-            var mouseY = (-this._mouse.y + 1 ) / 2 * window.innerHeight
-
-            tooltip.style.left = mouseX+'px';
-            tooltip.style.top = mouseY+'px';
+            tooltip.style.left = mouseX + 20 + 'px';
+            tooltip.style.top = mouseY - 20 + 'px';
             tooltip.style.display = 'block'
           } else {
             tooltip.style.display = 'none'
@@ -198,9 +210,11 @@ export default class WebGL3dViewer {
   }
 
   bindEvents() {
-    var self = this;
+
     // when the mouse moves, call the given function
-  	document.addEventListener( 'mousemove', self.onMouseMove.bind(self), false );
+  	this._container.addEventListener( 'mousemove', this.onMouseMove.bind(this), false );
+    // this.bindResize()
+    THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
   }
 
   onMouseMove(e) {
@@ -209,8 +223,36 @@ export default class WebGL3dViewer {
   	// event.preventDefault();
 
   	// update the mouse variable
-  	this._mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-    this._mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+  	this._mouse.x = ( e.offsetX / this.SCREEN_WIDTH ) * 2 - 1;
+    this._mouse.y = - ( e.offsetY / this.SCREEN_HEIGHT ) * 2 + 1;
+  }
+
+  bindResize() {
+    var renderer = this._renderer;
+    var camera = this._camera;
+
+    var callback	= function(){
+      this.SCREEN_WIDTH = this._container.clientWidth
+      this.SCREEN_HEIGHT = this._container.clientHeight
+
+      // notify the renderer of the size change
+      // renderer.setSize( window.innerWidth, window.innerHeight );
+      renderer.setSize( this.SCREEN_WIDTH, this.SCREEN_HEIGHT );
+      // update the camera
+      camera.aspect	= this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
+      camera.updateProjectionMatrix();
+    }
+    // bind the resize event
+    this._container.addEventListener('resize', callback.bind(this), false);
+    // return .stop() the function to stop watching window resize
+    return {
+      /**
+       * Stop watching window resize
+      */
+      stop	: function(){
+        this._container.removeEventListener('resize', callback);
+      }
+    };
   }
 
 }

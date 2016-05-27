@@ -2,89 +2,123 @@ import THREE from './threejs'
 import hilbert3D from './threejs/hilbert3D'
 // import THREEx from './threejs/threeX'
 
-export default class Rack {
+export default class Rack extends THREE.Object3D {
 
-  constructor(viewer, model) {
-    this._viewer = viewer;
+  constructor(model) {
+    super();
+
     this._model = model;
 
-    this.createObject();
+    this.createObject(model);
   }
 
-  createObject() {
-    var viewer = this._viewer
-    var scene = viewer._scene
-    var model = this._model;
+  static createRacks(model, canvasSize) {
 
-    var canvasSize = {
-      width : 1200,
-      height: 800
-    }
+    let rotation = model.rotation || {}
 
-    var colorR = 0
-    var colorG = 99
-    var colorB = 50
+    var racks = [];
 
     for (var i = 0; i < model.shelves; i++) {
-      colorR += 15;
-      colorG -= 11;
-      colorB += 1;
 
-      let cx = (model.left + (model.width/2)) - canvasSize.width/2;
-      let cy = (model.top + (model.height/2)) - canvasSize.height/2;
-      let cz = (i + 0.5) * model.depth + 5
+      var m = {
+        type : model.type,
+        cx : (model.left + (model.width/2)) - canvasSize.width/2,
+        cy : (model.top + (model.height/2)) - canvasSize.height/2,
+        cz : (i + 0.5) * model.depth,
+        width : model.width,
+        height : model.height,
+        depth: model.depth,
+        rotation : rotation,
+        location : model.location + "_" + (i+1)
+      }
 
-      var object = this.createRackFrame(model.width, model.height, model.depth)
-      object._type = model.type;
-      object._model = model;
-      object._location = model.location + "_" + (i+1)
-      object.position.set(cx, cz, cy)
-
-      scene.add(object)
-
-      var board = this.createRackBoard(model.width, model.height)
-      board.position.set(cx, cz + model.depth/2, cy)
-    	board.rotation.x = Math.PI / 2;
-      board._location = model.location + "_" + (i+1)
-      board._type = model.type
-      scene.add(board)
-
-      var board = this.createRackBoard(model.width, model.height)
-      board.position.set(cx, cz - model.depth/2, cy)
-    	board.rotation.x = Math.PI / 2;
-      board._location = model.location + "_" + (i+1)
-      board._type = model.type
-      scene.add(board)
-
-      var board = this.createRackBoard(model.width, model.depth)
-      board.position.set(cx, cz , cy- model.height/2)
-      // board.rotation.x = Math.PI / 2;
-      board._location = model.location + "_" + (i+1)
-      board._type = model.type
-      scene.add(board)
-
+      racks.push(new Rack(m))
     }
+
+    return racks;
+  }
+
+  createObject(model) {
+
+    let cx = model.cx;
+    let cy = model.cy;
+    let cz = model.cz;
+
+    let rotation = model.rotation || {}
+
+    this.type = model.type
+
+    var frame = this.createRackFrame(model.width, model.height, model.depth)
+
+    this.add(frame)
+
+    var board = this.createRackBoard(model.width, model.height)
+    board.position.set(0, -model.depth/2, 0)
+    board.rotation.x = Math.PI / 2;
+
+    this.add(board)
+
+    var board = this.createRackBoard(model.width, model.height)
+    board.position.set(0, model.depth/2, 0)
+    board.rotation.x = Math.PI / 2;
+
+    this.add(board)
+
+    var stock = this.createStock(model.width, model.height, model.depth)
+
+    this.add(stock)
+
+    this.position.set(cx, cz, cy)
+    this.rotation.x = rotation.x || 0
+    this.rotation.y = rotation.y || 0
+    this.rotation.z = rotation.z || 0
+    this.userData = {
+      type : 'rack',
+      location : model.location,
+      stock : stock
+    }
+    this.name = model.location
   }
 
   createRackFrame(w, h, d) {
 
-    var geometryCube = this.cube({
+    this.geometry = this.cube({
       width: w,
       height : d,
       depth : h
     })
 
-    return new THREE.LineSegments( geometryCube, new THREE.LineDashedMaterial( { color: 0xccaa00, dashSize: 3, gapSize: 1, linewidth: 5 } ) );;
+    return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 0xccaa00, dashSize: 3, gapSize: 1, linewidth: 2 } ) );;
 
   }
 
   createRackBoard(w, h) {
 
-  	var boardMaterial = new THREE.MeshBasicMaterial( { color : '#cfcfcf', side: THREE.DoubleSide } );
+
+
+    // var boardTexture = new THREE.TextureLoader().load('textures/textured-white-plastic-close-up.jpg');
+    // boardTexture.wrapS = boardTexture.wrapT = THREE.RepeatWrapping;
+  	// boardTexture.repeat.set( 100, 100 );
+
+  	// var boardMaterial = new THREE.MeshBasicMaterial( { map: boardTexture, side: THREE.DoubleSide } );
+  	var boardMaterial = new THREE.MeshBasicMaterial( { color: '#3c3c3c', side: THREE.DoubleSide } );
   	var boardGeometry = new THREE.PlaneGeometry(w, h, 10, 10);
   	var board = new THREE.Mesh(boardGeometry, boardMaterial);
 
     return board
+  }
+
+  createStock(w, h, d) {
+
+    let scale = 0.8;
+
+    var stockGeometry = new THREE.BoxGeometry(w * scale, d * scale, h * scale);
+    var stockMaterial = new THREE.MeshBasicMaterial( { color : '#cfcfcf', side: THREE.DoubleSide } );
+
+    var stock = new THREE.Mesh(stockGeometry, stockMaterial)
+    stock.position.set(0, -(1-scale) * 0.5 * d , 0)
+
+    return stock;
   }
 
   cube( size ) {
@@ -123,5 +157,10 @@ export default class Rack {
 		return geometry;
 	}
 
+
+
+  raycast(raycaster, intersects) {
+
+  }
 
 }
