@@ -58,6 +58,8 @@ Example:
   <script src="./things-scene-3d-viewer.js"></script>
 
   <script>
+    var STATUS_COLORS = ['black', 'red', 'green', 'blue']
+
     Polymer({
       is: 'things-scene-3d-viewer',
 
@@ -120,32 +122,10 @@ Example:
 
       _onDataChanged: function(data) {
 
-        data.rows.forEach(d =>{
-          let colorR = '#ff0000'
-          let colorG = '#00ff00'
-          let colorB = '#0000ff'
-
-          var color = colorR
-
-          if(d.status === 0) {
-            color = colorR
-          } else if (d.status === 1) {
-            color = colorG
-          } else if (d.status === 2) {
-            color = colorB
-          }
-
-
-
-          console.log(color)
-          // this.viewer._scene.getObjectByName(d.loc).material.color.set(color)
-          this.viewer._scene.children.forEach(obj => {
-            if(obj.type === 'rack'){
-              obj.userData.stock.material.color.set(color)
-            }
-          })
+        data.forEach(d => {
+          this.viewer._scene.getObjectByName(d.loc)
+          .userData.stock.material.color.set(STATUS_COLORS[d.status])
         })
-
 
       }
 

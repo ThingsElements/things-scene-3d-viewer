@@ -49,6 +49,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script>
       window.addEventListener('WebComponentsReady', function(e) {
         var app = document.querySelector('#app')
+        var zeroToNine = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
         app.$.change.addEventListener('click', function() {
 
@@ -70,20 +71,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         })
 
-        var rows = [];
-
         function buildRow(top, left) {
 
-          var zeroToNine = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
           return zeroToNine.map(function(x) {
-            rows.push({
-              loc : 'LOC-' + x + 'A',
-              status : Math.floor(Math.random() * 10) % 3
-            });
             return {
               type : 'rack',
-              location : 'LOC-' + x + 'A',
+              location : `LOC-${top}-${left}-${x}-A`,
               left : left + 50 * x,
               top : 100 * top,
               width : 50,
@@ -95,7 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }).concat(zeroToNine.map(function(x) {
             return {
               type : 'rack',
-              location : 'LOC-' + x + 'B',
+              location : `LOC-${top}-${left}-${x}-B`,
               left : left + 50 * x,
               top : 100 * top + 20,
               width : 50,
@@ -114,20 +107,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }).reduce(function(racks, row) {
           return racks.concat(row)
         }, [])
-        // var racks = [{
-        //     type : 'rack',
-        //     location : 'LOC-B',
-        //     left : 600,
-        //     top : 400,
-        //     width : 100,
-        //     height : 50,
-        //     depth : 30,
-        //     shelves : 1,
-        //     rotation: {
-        //       y : 45 * Math.PI / 180
-        //     }
-        //
-        // }]
 
         var model = {
           width: 1200,
@@ -136,13 +115,34 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           components: racks
         }
 
-        var data = {
-          rows : rows
-        }
-
         app.model = model
-        app.data = data
 
+        setInterval(function() {
+
+          app.data = [1, 2, 3, 4, 5, 6].reduce(function(sum, top) {
+            return sum.concat(
+              [50, 650].reduce(function(sum, left) {
+
+                return sum.concat(
+                  [1, 2, 3, 4].reduce(function(sum, shelf) {
+                    return sum.concat(zeroToNine.map(function(x) {
+                      return {
+                        loc : `LOC-${top}-${left}-${x}-A_${shelf}`,
+                        status: Math.floor(Math.random() * 4)
+                      }
+                    })).concat(zeroToNine.map(function(x) {
+                      return {
+                        loc : `LOC-${top}-${left}-${x}-B_${shelf}`,
+                        status: Math.floor(Math.random() * 4)
+                      }
+                    }))
+                  }, [])
+                )
+
+              }, [])
+            )
+          }, [])
+        }, 5000)
 
       });
     </script>

@@ -29,7 +29,8 @@ export default class Rack extends THREE.Object3D {
         height : model.height,
         depth: model.depth,
         rotation : rotation,
-        location : model.location + "_" + (i+1)
+        location : model.location + "_" + (i+1),
+        status: model.status
       }
 
       racks.push(new Rack(m))
@@ -88,8 +89,8 @@ export default class Rack extends THREE.Object3D {
       depth : h
     })
 
-    return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 0xccaa00, dashSize: 3, gapSize: 1, linewidth: 2 } ) );;
-
+    // return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 0xccaa00, dashSize: 3, gapSize: 1, linewidth: 2 } ) );
+    return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 'gray', dashSize: 3, gapSize: 1, linewidth: 2 } ) );
   }
 
   createRackBoard(w, h) {
