@@ -1,5 +1,6 @@
 import THREE from './threejs'
 import hilbert3D from './threejs/hilbert3D'
+// import Stock from './stock'
 // import THREEx from './threejs/threeX'
 
 export default class Rack extends THREE.Object3D {
@@ -71,7 +72,19 @@ export default class Rack extends THREE.Object3D {
 
     this.add(board)
 
+    // var stock = new Stock(model)
     var stock = this.createStock(model.width, model.height, model.depth)
+    var raycast = stock.raycast
+
+    // stock.raycast = function(raycaster, intersects){
+    //
+    //   if(this.material.transparent && this.material.opacity === 0) {
+    //     return
+    //   } else {
+    //     raycast()
+    //   }
+    //
+    // }
     this.add(stock)
 
     this.position.set(cx, cz, cy)
@@ -127,6 +140,8 @@ export default class Rack extends THREE.Object3D {
     var stock = new THREE.Mesh(stockGeometry, stockMaterial)
     stock.type = 'stock'
     stock.position.set(0, -(1-scale) * 0.5 * d , 0)
+    stock.material.transparent = true;
+    stock.material.opacity = 0.9
 
     return stock;
   }

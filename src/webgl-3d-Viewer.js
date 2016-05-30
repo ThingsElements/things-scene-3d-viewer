@@ -23,6 +23,66 @@ export default class WebGL3dViewer {
 
   }
 
+  init() {
+
+    var model = this._model
+
+    // PROPERTY
+    this._mouse = { x: 0, y: 0 }
+    this.INTERSECTED
+
+    this.FLOOR_WIDTH = model.width
+    this.FLOOR_HEIGHT = model.height
+
+    // SCENE
+    this._scene = new THREE.Scene();
+
+    // CAMERA
+    this.SCREEN_WIDTH = this._container.clientWidth;
+    this.SCREEN_HEIGHT = this._container.clientHeight;
+    this.VIEW_ANGLE = 45;
+    this.ASPECT = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
+    this.NEAR = 0.1;
+    this.FAR = 20000;
+
+    this._camera = new THREE.PerspectiveCamera( this.VIEW_ANGLE, this.ASPECT, this.NEAR, this.FAR);
+    this._scene.add(this._camera);
+    this._camera.position.set(800,1200,1200);
+    this._camera.lookAt(this._scene.position);
+
+    // RENDERER
+    if(this._renderer && this._renderer.domElement){
+      this._container.removeChild(this._renderer.domElement)
+    }
+
+    this._renderer = new THREE.WebGLRenderer( {antialias:true} );
+    this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
+
+    this._container.appendChild( this._renderer.domElement );
+
+    // KEYBOARD
+    this._keyboard = new THREEx.KeyboardState();
+
+    // CONTROLS
+    this._controls = new THREE.OrbitControls( this._camera, this._renderer.domElement );
+
+    // LIGHT
+    var light = new THREE.PointLight(0xffffff);
+    light.position.set(10,10,0);
+    this._camera.add(light);
+
+    this.createFloor()
+
+    ////////////
+    // CUSTOM //
+    ////////////
+    this.createObjects(model.components)
+
+    // initialize object to perform world/screen calculations
+    this._projector = new THREE.Projector();
+
+  }
+
   createFloor() {
 
     // FLOOR
@@ -71,71 +131,13 @@ export default class WebGL3dViewer {
 
   }
 
-  init() {
-
-    var model = this._model
-
-    // PROPERTY
-    this._mouse = { x: 0, y: 0 }
-    this.INTERSECTED
-
-    this.FLOOR_WIDTH = model.width
-    this.FLOOR_HEIGHT = model.height
-
-    // SCENE
-    this._scene = new THREE.Scene();
-
-    // CAMERA
-    this.SCREEN_WIDTH = this._container.clientWidth;
-    this.SCREEN_HEIGHT = this._container.clientHeight;
-    this.VIEW_ANGLE = 45;
-    this.ASPECT = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
-    this.NEAR = 0.1;
-    this.FAR = 20000;
-
-    this._camera = new THREE.PerspectiveCamera( this.VIEW_ANGLE, this.ASPECT, this.NEAR, this.FAR);
-    this._scene.add(this._camera);
-    this._camera.position.set(800,1200,1200);
-    this._camera.lookAt(this._scene.position);
-
-    // RENDERER
-    if(this._renderer && this._renderer.domElement){
-      this._container.removeChild(this._renderer.domElement)
-    }
-
-    this._renderer = new THREE.WebGLRenderer( {antialias:true} );
-    this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
-
-    this._container.appendChild( this._renderer.domElement );
-
-    // KEYBOARD
-    this._keyboard = new THREEx.KeyboardState();
-
-    // CONTROLS
-    this._controls = new THREE.OrbitControls( this._camera, this._renderer.domElement );
-
-    // LIGHT
-    var light = new THREE.PointLight(0xffffff);
-    light.position.set(800,1200,1600);
-    this._scene.add(light);
-
-    this.createFloor()
-
-    ////////////
-    // CUSTOM //
-    ////////////
-    this.createObjects(model.components)
-
-    // initialize object to perform world/screen calculations
-    this._projector = new THREE.Projector();
-
-  }
-
   animate() {
 
     requestAnimationFrame( this.animate.bind(this) );
     this.render();
     this.update();
+
+    this.rotateCam(0.01)
 
   }
 
