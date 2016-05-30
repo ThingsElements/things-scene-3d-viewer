@@ -128,7 +128,7 @@ Example:
 
       _onDataChanged: function(data) {
 
-        if(!data && !data.rows)
+        if(!data || !data.rows)
           return
 
         data.rows.forEach(d => {
