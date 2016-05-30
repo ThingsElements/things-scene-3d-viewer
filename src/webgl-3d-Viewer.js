@@ -47,7 +47,7 @@ export default class WebGL3dViewer {
 
     this._camera = new THREE.PerspectiveCamera( this.VIEW_ANGLE, this.ASPECT, this.NEAR, this.FAR);
     this._scene.add(this._camera);
-    this._camera.position.set(800,1200,1200);
+    this._camera.position.set(800,800,800);
     this._camera.lookAt(this._scene.position);
 
     // RENDERER
@@ -137,7 +137,7 @@ export default class WebGL3dViewer {
     this.render();
     this.update();
 
-    this.rotateCam(0.01)
+    this.rotateCam(0.02)
 
   }
 
@@ -220,9 +220,15 @@ export default class WebGL3dViewer {
   bindEvents() {
 
     // when the mouse moves, call the given function
+    // this._container.addEventListener( 'mousedown', this.onMouseMove.bind(this), false );
     this._container.addEventListener( 'mousemove', this.onMouseMove.bind(this), false );
     // this.bindResize()
     THREEx.FullScreen.bindKey({ charCode : 'm'.charCodeAt(0) });
+  }
+
+  onMouseDown(e) {
+    this._mouse.x = ( e.offsetX / this.SCREEN_WIDTH ) * 2 - 1;
+    this._mouse.y = - ( e.offsetY / this.SCREEN_HEIGHT ) * 2 + 1;
   }
 
   onMouseMove(e) {
