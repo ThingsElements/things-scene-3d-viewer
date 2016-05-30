@@ -56,17 +56,20 @@ export default class Rack extends THREE.Object3D {
     var board = this.createRackBoard(model.width, model.height)
     board.position.set(0, -model.depth/2, 0)
     board.rotation.x = Math.PI / 2;
+    board.material.opacity = 0.6
+    board.material.transparent = true
 
     this.add(board)
 
     var board = this.createRackBoard(model.width, model.height)
     board.position.set(0, model.depth/2, 0)
     board.rotation.x = Math.PI / 2;
+    board.material.opacity = 0.6
+    board.material.transparent = true
 
     this.add(board)
 
     var stock = this.createStock(model.width, model.height, model.depth)
-
     this.add(stock)
 
     this.position.set(cx, cz, cy)
@@ -89,8 +92,8 @@ export default class Rack extends THREE.Object3D {
       depth : h
     })
 
-    // return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 0xccaa00, dashSize: 3, gapSize: 1, linewidth: 2 } ) );
-    return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 'gray', dashSize: 3, gapSize: 1, linewidth: 2 } ) );
+    return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 0xcccccc, dashSize: 3, gapSize: 1, linewidth: 1 } ) );
+    // return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 'gray', dashSize: 3, gapSize: 1, linewidth: 2 } ) );
   }
 
   createRackBoard(w, h) {
@@ -102,7 +105,7 @@ export default class Rack extends THREE.Object3D {
   	// boardTexture.repeat.set( 100, 100 );
 
   	// var boardMaterial = new THREE.MeshBasicMaterial( { map: boardTexture, side: THREE.DoubleSide } );
-  	var boardMaterial = new THREE.MeshBasicMaterial( { color: '#3c3c3c', side: THREE.DoubleSide } );
+  	var boardMaterial = new THREE.MeshBasicMaterial( { color: '#dedede', side: THREE.DoubleSide } );
   	var boardGeometry = new THREE.PlaneGeometry(w, h, 10, 10);
   	var board = new THREE.Mesh(boardGeometry, boardMaterial);
 
@@ -111,10 +114,10 @@ export default class Rack extends THREE.Object3D {
 
   createStock(w, h, d) {
 
-    let scale = 0.8;
+    let scale = 0.7;
 
     var stockGeometry = new THREE.BoxGeometry(w * scale, d * scale, h * scale);
-    var stockMaterial = new THREE.MeshBasicMaterial( { color : '#cfcfcf', side: THREE.DoubleSide } );
+    var stockMaterial = new THREE.MeshBasicMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
 
     var stock = new THREE.Mesh(stockGeometry, stockMaterial)
     stock.position.set(0, -(1-scale) * 0.5 * d , 0)

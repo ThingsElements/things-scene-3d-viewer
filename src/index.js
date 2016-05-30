@@ -18,4 +18,3 @@ if (typeof global !== 'undefined') {
 }
 
 export default ThingsScene3dViewer
-

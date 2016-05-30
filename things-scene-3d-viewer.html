@@ -114,17 +114,27 @@ Example:
       },
 
       _onModelChanged: function(model) {
-        // if(this.viewer)
-        //   this.viewer.dispose()
+        if(!this.viewer){
+          this.viewer = new ThingsScene3dViewer.WebGL3dViewer(this, model)
+          return
+        }
 
-        this.viewer = new ThingsScene3dViewer.WebGL3dViewer(this, model)
+        this.data = null;
+        this.viewer._model = model
+
+        this.viewer.init()
+
       },
 
       _onDataChanged: function(data) {
 
-        data.forEach(d => {
-          this.viewer._scene.getObjectByName(d.loc)
-          .userData.stock.material.color.set(STATUS_COLORS[d.status])
+        if(!data)
+          return
+
+        data.rows.forEach(d => {
+          let rack = this.viewer._scene.getObjectByName(d.loc)
+          if(rack && rack.userData && rack.userData.stock)
+            rack.userData.stock.material.color.set(STATUS_COLORS[d.status])
         })
 
       }
