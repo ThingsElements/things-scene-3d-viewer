@@ -38,6 +38,6 @@
   },
 
   "dependencies": {
-    "things-scene": "^0.5.0"
+    "things-scene": "^0.5.57"
   }
 }
