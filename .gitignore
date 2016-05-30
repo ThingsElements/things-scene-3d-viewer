@@ -3,5 +3,4 @@ lib/
 npm-debug.log
 bundle.js
 presentor.js
-things-scene-3d-viewer.js
 bower_components
