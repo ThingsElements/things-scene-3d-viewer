@@ -414,6 +414,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+// import Stock from './stock'
 // import THREEx from './threejs/threeX'
 
 var Rack = function (_THREE$Object3D) {
@@ -463,7 +464,19 @@ var Rack = function (_THREE$Object3D) {
 
       this.add(board);
 
+      // var stock = new Stock(model)
       var stock = this.createStock(model.width, model.height, model.depth);
+      var raycast = stock.raycast;
+
+      // stock.raycast = function(raycaster, intersects){
+      //
+      //   if(this.material.transparent && this.material.opacity === 0) {
+      //     return
+      //   } else {
+      //     raycast()
+      //   }
+      //
+      // }
       this.add(stock);
 
       this.position.set(cx, cz, cy);
@@ -517,6 +530,8 @@ var Rack = function (_THREE$Object3D) {
       var stock = new _threejs2.default.Mesh(stockGeometry, stockMaterial);
       stock.type = 'stock';
       stock.position.set(0, -(1 - scale) * 0.5 * d, 0);
+      stock.material.transparent = true;
+      stock.material.opacity = 0.9;
 
       return stock;
     }
@@ -2253,6 +2268,66 @@ var WebGL3dViewer = function () {
   }
 
   _createClass(WebGL3dViewer, [{
+    key: 'init',
+    value: function init() {
+
+      var model = this._model;
+
+      // PROPERTY
+      this._mouse = { x: 0, y: 0 };
+      this.INTERSECTED;
+
+      this.FLOOR_WIDTH = model.width;
+      this.FLOOR_HEIGHT = model.height;
+
+      // SCENE
+      this._scene = new _threejs2.default.Scene();
+
+      // CAMERA
+      this.SCREEN_WIDTH = this._container.clientWidth;
+      this.SCREEN_HEIGHT = this._container.clientHeight;
+      this.VIEW_ANGLE = 45;
+      this.ASPECT = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
+      this.NEAR = 0.1;
+      this.FAR = 20000;
+
+      this._camera = new _threejs2.default.PerspectiveCamera(this.VIEW_ANGLE, this.ASPECT, this.NEAR, this.FAR);
+      this._scene.add(this._camera);
+      this._camera.position.set(800, 800, 800);
+      this._camera.lookAt(this._scene.position);
+
+      // RENDERER
+      if (this._renderer && this._renderer.domElement) {
+        this._container.removeChild(this._renderer.domElement);
+      }
+
+      this._renderer = new _threejs2.default.WebGLRenderer({ antialias: true });
+      this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
+
+      this._container.appendChild(this._renderer.domElement);
+
+      // KEYBOARD
+      this._keyboard = new _threeX2.default.KeyboardState();
+
+      // CONTROLS
+      this._controls = new _threejs2.default.OrbitControls(this._camera, this._renderer.domElement);
+
+      // LIGHT
+      var light = new _threejs2.default.PointLight(0xffffff);
+      light.position.set(10, 10, 0);
+      this._camera.add(light);
+
+      this.createFloor();
+
+      ////////////
+      // CUSTOM //
+      ////////////
+      this.createObjects(model.components);
+
+      // initialize object to perform world/screen calculations
+      this._projector = new _threejs2.default.Projector();
+    }
+  }, {
     key: 'createFloor',
     value: function createFloor() {
 
@@ -2300,72 +2375,14 @@ var WebGL3dViewer = function () {
       });
     }
   }, {
-    key: 'init',
-    value: function init() {
-
-      var model = this._model;
-
-      // PROPERTY
-      this._mouse = { x: 0, y: 0 };
-      this.INTERSECTED;
-
-      this.FLOOR_WIDTH = model.width;
-      this.FLOOR_HEIGHT = model.height;
-
-      // SCENE
-      this._scene = new _threejs2.default.Scene();
-
-      // CAMERA
-      this.SCREEN_WIDTH = this._container.clientWidth;
-      this.SCREEN_HEIGHT = this._container.clientHeight;
-      this.VIEW_ANGLE = 45;
-      this.ASPECT = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
-      this.NEAR = 0.1;
-      this.FAR = 20000;
-
-      this._camera = new _threejs2.default.PerspectiveCamera(this.VIEW_ANGLE, this.ASPECT, this.NEAR, this.FAR);
-      this._scene.add(this._camera);
-      this._camera.position.set(800, 1200, 1200);
-      this._camera.lookAt(this._scene.position);
-
-      // RENDERER
-      if (this._renderer && this._renderer.domElement) {
-        this._container.removeChild(this._renderer.domElement);
-      }
-
-      this._renderer = new _threejs2.default.WebGLRenderer({ antialias: true });
-      this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
-
-      this._container.appendChild(this._renderer.domElement);
-
-      // KEYBOARD
-      this._keyboard = new _threeX2.default.KeyboardState();
-
-      // CONTROLS
-      this._controls = new _threejs2.default.OrbitControls(this._camera, this._renderer.domElement);
-
-      // LIGHT
-      var light = new _threejs2.default.PointLight(0xffffff);
-      light.position.set(800, 1200, 1600);
-      this._scene.add(light);
-
-      this.createFloor();
-
-      ////////////
-      // CUSTOM //
-      ////////////
-      this.createObjects(model.components);
-
-      // initialize object to perform world/screen calculations
-      this._projector = new _threejs2.default.Projector();
-    }
-  }, {
     key: 'animate',
     value: function animate() {
 
       requestAnimationFrame(this.animate.bind(this));
       this.render();
       this.update();
+
+      this.rotateCam(0.02);
     }
   }, {
     key: 'update',
@@ -2440,9 +2457,16 @@ var WebGL3dViewer = function () {
     value: function bindEvents() {
 
       // when the mouse moves, call the given function
+      // this._container.addEventListener( 'mousedown', this.onMouseMove.bind(this), false );
       this._container.addEventListener('mousemove', this.onMouseMove.bind(this), false);
       // this.bindResize()
       _threeX2.default.FullScreen.bindKey({ charCode: 'm'.charCodeAt(0) });
+    }
+  }, {
+    key: 'onMouseDown',
+    value: function onMouseDown(e) {
+      this._mouse.x = e.offsetX / this.SCREEN_WIDTH * 2 - 1;
+      this._mouse.y = -(e.offsetY / this.SCREEN_HEIGHT) * 2 + 1;
     }
   }, {
     key: 'onMouseMove',
