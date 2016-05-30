@@ -8,9 +8,9 @@ export default class WebGL3dViewer {
   constructor(target, model, data) {
 
     if(typeof target == 'string')
-    this._container = document.getElementById( target );
+      this._container = document.getElementById( target );
     else
-    this._container = target
+      this._container = target
 
     this._model = model
 
@@ -20,16 +20,15 @@ export default class WebGL3dViewer {
     this.bindEvents()
 
     this.animate()
+
   }
 
   createFloor() {
 
     // FLOOR
     var floorTexture = new THREE.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
-
-    // var floorTexture = new THREE.ImageUtils.loadTexture( 'textures/checkerboard.jpg' );
     floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set( 10, 10 );
+    floorTexture.repeat.set( 1, 1 );
     var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
     var floorGeometry = new THREE.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
     // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
@@ -55,13 +54,13 @@ export default class WebGL3dViewer {
 
     let scene = this._scene
     let model = this._model;
-
     let canvasSize = {
       width : this.FLOOR_WIDTH,
       height: this.FLOOR_HEIGHT
     }
 
     models.forEach(model => {
+
       if(model.type === 'rack'){
         Rack.createRacks(model, canvasSize).forEach(rack => {
           scene.add(rack)
@@ -73,6 +72,7 @@ export default class WebGL3dViewer {
   }
 
   init() {
+
     var model = this._model
 
     // PROPERTY
@@ -116,7 +116,7 @@ export default class WebGL3dViewer {
 
     // LIGHT
     var light = new THREE.PointLight(0xffffff);
-    light.position.set(0,250,0);
+    light.position.set(800,1200,1600);
     this._scene.add(light);
 
     this.createFloor()
@@ -128,6 +128,7 @@ export default class WebGL3dViewer {
 
     // initialize object to perform world/screen calculations
     this._projector = new THREE.Projector();
+
   }
 
   animate() {
@@ -163,12 +164,12 @@ export default class WebGL3dViewer {
       if ( intersects[ 0 ].object != this.INTERSECTED )
       {
         // restore previous intersection object (if it exists) to its original color
-        // if ( this.INTERSECTED )
-        //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
+        if ( this.INTERSECTED )
+          this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
         // store reference to closest object as current intersection object
         this.INTERSECTED = intersects[ 0 ].object;
         // store color of closest object (for later restoration)
-        // this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
+        this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
         // set a new color for closest object
         // this.INTERSECTED.material.color.setHex( 0xffff00 );
 
@@ -191,8 +192,8 @@ export default class WebGL3dViewer {
     else // there are no intersections
     {
       // restore previous intersection object (if it exists) to its original color
-      // if ( this.INTERSECTED )
-      //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
+      if ( this.INTERSECTED )
+        this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
       // remove previous intersection object reference
       //     by setting current intersection object to "nothing"
       this.INTERSECTED = null;
@@ -210,8 +211,7 @@ export default class WebGL3dViewer {
 
   }
 
-  render()
-  {
+  render() {
     this._renderer.render( this._scene, this._camera );
   }
 

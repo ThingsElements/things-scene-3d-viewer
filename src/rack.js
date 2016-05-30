@@ -5,17 +5,18 @@ import hilbert3D from './threejs/hilbert3D'
 export default class Rack extends THREE.Object3D {
 
   constructor(model) {
+
     super();
 
     this._model = model;
 
     this.createObject(model);
+
   }
 
   static createRacks(model, canvasSize) {
 
     let rotation = model.rotation || {}
-
     var racks = [];
 
     for (var i = 0; i < model.shelves; i++) {
@@ -37,6 +38,7 @@ export default class Rack extends THREE.Object3D {
     }
 
     return racks;
+
   }
 
   createObject(model) {
@@ -82,6 +84,7 @@ export default class Rack extends THREE.Object3D {
       stock : stock
     }
     this.name = model.location
+
   }
 
   createRackFrame(w, h, d) {
@@ -92,22 +95,23 @@ export default class Rack extends THREE.Object3D {
       depth : h
     })
 
-    return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 0xcccccc, dashSize: 3, gapSize: 1, linewidth: 1 } ) );
-    // return new THREE.LineSegments( this.geometry, new THREE.LineDashedMaterial( { color: 'gray', dashSize: 3, gapSize: 1, linewidth: 2 } ) );
+    return new THREE.LineSegments(
+      this.geometry,
+      new THREE.LineDashedMaterial( { color: 0xcccccc, dashSize: 3, gapSize: 1, linewidth: 1 } )
+    );
+
   }
 
   createRackBoard(w, h) {
 
-
-
     // var boardTexture = new THREE.TextureLoader().load('textures/textured-white-plastic-close-up.jpg');
     // boardTexture.wrapS = boardTexture.wrapT = THREE.RepeatWrapping;
-  	// boardTexture.repeat.set( 100, 100 );
+    // boardTexture.repeat.set( 100, 100 );
 
-  	// var boardMaterial = new THREE.MeshBasicMaterial( { map: boardTexture, side: THREE.DoubleSide } );
-  	var boardMaterial = new THREE.MeshBasicMaterial( { color: '#dedede', side: THREE.DoubleSide } );
-  	var boardGeometry = new THREE.PlaneGeometry(w, h, 10, 10);
-  	var board = new THREE.Mesh(boardGeometry, boardMaterial);
+    // var boardMaterial = new THREE.MeshBasicMaterial( { map: boardTexture, side: THREE.DoubleSide } );
+    var boardMaterial = new THREE.MeshBasicMaterial( { color: '#dedede', side: THREE.DoubleSide } );
+    var boardGeometry = new THREE.PlaneGeometry(w, h, 10, 10);
+    var board = new THREE.Mesh(boardGeometry, boardMaterial);
 
     return board
   }
@@ -117,9 +121,11 @@ export default class Rack extends THREE.Object3D {
     let scale = 0.7;
 
     var stockGeometry = new THREE.BoxGeometry(w * scale, d * scale, h * scale);
-    var stockMaterial = new THREE.MeshBasicMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
+    // var stockMaterial = new THREE.MeshBasicMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
+    var stockMaterial = new THREE.MeshLambertMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
 
     var stock = new THREE.Mesh(stockGeometry, stockMaterial)
+    stock.type = 'stock'
     stock.position.set(0, -(1-scale) * 0.5 * d , 0)
 
     return stock;
@@ -131,35 +137,37 @@ export default class Rack extends THREE.Object3D {
     var h = size.height * 0.5;
     var d = size.depth * 0.5;
 
-		var geometry = new THREE.Geometry();
-		geometry.vertices.push(
-			new THREE.Vector3( -w, -h, -d ),
-			new THREE.Vector3( -w, h, -d ),
-			new THREE.Vector3( -w, h, -d ),
-			new THREE.Vector3( w, h, -d ),
-			new THREE.Vector3( w, h, -d ),
-			new THREE.Vector3( w, -h, -d ),
-			new THREE.Vector3( w, -h, -d ),
-			new THREE.Vector3( -w, -h, -d ),
-			new THREE.Vector3( -w, -h, d ),
-			new THREE.Vector3( -w, h, d ),
-			new THREE.Vector3( -w, h, d ),
-			new THREE.Vector3( w, h, d ),
-			new THREE.Vector3( w, h, d ),
-			new THREE.Vector3( w, -h, d ),
-			new THREE.Vector3( w, -h, d ),
-			new THREE.Vector3( -w, -h, d ),
-			new THREE.Vector3( -w, -h, -d ),
-			new THREE.Vector3( -w, -h, d ),
-			new THREE.Vector3( -w, h, -d ),
-			new THREE.Vector3( -w, h, d ),
-			new THREE.Vector3( w, h, -d ),
-			new THREE.Vector3( w, h, d ),
-			new THREE.Vector3( w, -h, -d ),
-			new THREE.Vector3( w, -h, d )
-		 );
-		return geometry;
-	}
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(
+      new THREE.Vector3( -w, -h, -d ),
+      new THREE.Vector3( -w, h, -d ),
+      new THREE.Vector3( -w, h, -d ),
+      new THREE.Vector3( w, h, -d ),
+      new THREE.Vector3( w, h, -d ),
+      new THREE.Vector3( w, -h, -d ),
+      new THREE.Vector3( w, -h, -d ),
+      new THREE.Vector3( -w, -h, -d ),
+      new THREE.Vector3( -w, -h, d ),
+      new THREE.Vector3( -w, h, d ),
+      new THREE.Vector3( -w, h, d ),
+      new THREE.Vector3( w, h, d ),
+      new THREE.Vector3( w, h, d ),
+      new THREE.Vector3( w, -h, d ),
+      new THREE.Vector3( w, -h, d ),
+      new THREE.Vector3( -w, -h, d ),
+      new THREE.Vector3( -w, -h, -d ),
+      new THREE.Vector3( -w, -h, d ),
+      new THREE.Vector3( -w, h, -d ),
+      new THREE.Vector3( -w, h, d ),
+      new THREE.Vector3( w, h, -d ),
+      new THREE.Vector3( w, h, d ),
+      new THREE.Vector3( w, -h, -d ),
+      new THREE.Vector3( w, -h, d )
+    );
+
+    return geometry;
+
+  }
 
 
 
