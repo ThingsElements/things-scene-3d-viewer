@@ -87,11 +87,14 @@ export default class WebGL3dViewer {
   createFloor() {
 
     // FLOOR
+    let model = this._model
+    let floorColor = model.color || '#7a8696'
+
     // var floorTexture = new THREE.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
     // floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
     // floorTexture.repeat.set( 1, 1 );
     // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-    var floorMaterial = new THREE.MeshBasicMaterial( { color : '#7a8696', side: THREE.DoubleSide } );
+    var floorMaterial = new THREE.MeshBasicMaterial( { color : floorColor, side: THREE.DoubleSide } );
     var floorGeometry = new THREE.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
     // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
     // var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);

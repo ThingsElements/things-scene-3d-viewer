@@ -90,7 +90,7 @@ export default class Rack extends THREE.Object3D {
 
     this.position.set(cx, cz, cy)
     this.rotation.y = rotation || 0
-    console.log(rotation)
+
     this.userData = {
       type : 'rack',
       location : model.location,

@@ -482,7 +482,7 @@ var Rack = function (_THREE$Object3D) {
 
       this.position.set(cx, cz, cy);
       this.rotation.y = rotation || 0;
-      console.log(rotation);
+
       this.userData = {
         type: 'rack',
         location: model.location,
@@ -2416,11 +2416,14 @@ var WebGL3dViewer = function () {
     value: function createFloor() {
 
       // FLOOR
+      var model = this._model;
+      var floorColor = model.color || '#7a8696';
+
       // var floorTexture = new THREE.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
       // floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
       // floorTexture.repeat.set( 1, 1 );
       // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-      var floorMaterial = new _threejs2.default.MeshBasicMaterial({ color: '#7a8696', side: _threejs2.default.DoubleSide });
+      var floorMaterial = new _threejs2.default.MeshBasicMaterial({ color: floorColor, side: _threejs2.default.DoubleSide });
       var floorGeometry = new _threejs2.default.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
       // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
       // var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);

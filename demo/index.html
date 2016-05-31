@@ -141,6 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           width: 1200,
           height: 800,
           unit: 'cm',
+          // color : '#000',
           components: racks
         }
 
@@ -153,29 +154,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             var loc = m.location;
 
             for(var j = 0; j < shelves; j ++) {
-              if(delayed && (Math.floor(Math.random() * 10) % 10 === 0) ) {
-                let randVal = Math.floor(Math.random() * 20)
-                console.log(randVal)
-                var status = 0
-
-                if(randVal === 0) {
-                  status = 0
-                }
-                else if (randVal < 16) {
-                  status = 1
-                }
-                else {
-                  status = randVal - 15
-                }
+              if(delayed && (Math.floor(Math.random() * 100) % 100 === 0) ) {
 
                 rows.push({
                   loc : loc + '_' + (j+1),
-                  status: status
+                  status: Math.floor(Math.random() * 5)
                 })
               } else {
                 rows.push({
                   loc : loc + '_' + (j+1),
-                  status: status
+                  status: Math.floor(Math.random() * 5)
                 })
               }
             }
