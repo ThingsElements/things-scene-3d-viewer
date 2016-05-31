@@ -74,7 +74,7 @@ export default class Rack extends THREE.Object3D {
 
     // var stock = new Stock(model)
     var stock = this.createStock(model.width, model.height, model.depth)
-    stock.visible = false
+    // stock.visible = false
     // var raycast = stock.raycast
     //
     // stock.raycast = function(raycaster, intersects){
@@ -135,7 +135,7 @@ export default class Rack extends THREE.Object3D {
 
     var stockGeometry = new THREE.BoxGeometry(w * scale, d * scale, h * scale);
     // var stockMaterial = new THREE.MeshBasicMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
-    var stockMaterial = new THREE.MeshLambertMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
+    var stockMaterial = new THREE.MeshLambertMaterial( { color : '#ccaa76', side: THREE.DoubleSide } );
 
     var stock = new THREE.Mesh(stockGeometry, stockMaterial)
     stock.type = 'stock'

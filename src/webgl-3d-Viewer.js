@@ -55,7 +55,7 @@ export default class WebGL3dViewer {
       this._container.removeChild(this._renderer.domElement)
     }
 
-    this._renderer = new THREE.WebGLRenderer( {antialias:true, precision : 'lowp'} );
+    this._renderer = new THREE.WebGLRenderer( {antialias:true} );
     this._renderer.setClearColor('#424b57')
     this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
 

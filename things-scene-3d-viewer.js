@@ -466,7 +466,7 @@ var Rack = function (_THREE$Object3D) {
 
       // var stock = new Stock(model)
       var stock = this.createStock(model.width, model.height, model.depth);
-      stock.visible = false;
+      // stock.visible = false
       // var raycast = stock.raycast
       //
       // stock.raycast = function(raycaster, intersects){
@@ -525,7 +525,7 @@ var Rack = function (_THREE$Object3D) {
 
       var stockGeometry = new _threejs2.default.BoxGeometry(w * scale, d * scale, h * scale);
       // var stockMaterial = new THREE.MeshBasicMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
-      var stockMaterial = new _threejs2.default.MeshLambertMaterial({ color: '#ff9900', side: _threejs2.default.DoubleSide });
+      var stockMaterial = new _threejs2.default.MeshLambertMaterial({ color: '#ccaa76', side: _threejs2.default.DoubleSide });
 
       var stock = new _threejs2.default.Mesh(stockGeometry, stockMaterial);
       stock.type = 'stock';
@@ -2384,7 +2384,7 @@ var WebGL3dViewer = function () {
         this._container.removeChild(this._renderer.domElement);
       }
 
-      this._renderer = new _threejs2.default.WebGLRenderer({ antialias: true, precision: 'lowp' });
+      this._renderer = new _threejs2.default.WebGLRenderer({ antialias: true });
       this._renderer.setClearColor('#424b57');
       this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
 
