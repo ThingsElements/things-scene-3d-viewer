@@ -56,6 +56,7 @@ export default class WebGL3dViewer {
     }
 
     this._renderer = new THREE.WebGLRenderer( {antialias:true, precision : 'lowp'} );
+    this._renderer.setClearColor('#424b57')
     this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
 
     this._container.appendChild( this._renderer.domElement );
@@ -90,7 +91,7 @@ export default class WebGL3dViewer {
     // floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
     // floorTexture.repeat.set( 1, 1 );
     // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-    var floorMaterial = new THREE.MeshBasicMaterial( { color : 0xffffff, side: THREE.DoubleSide } );
+    var floorMaterial = new THREE.MeshBasicMaterial( { color : '#7a8696', side: THREE.DoubleSide } );
     var floorGeometry = new THREE.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
     // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
     // var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);

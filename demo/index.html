@@ -126,9 +126,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               height : 20,
               depth : 30,
               shelves : 4,
-              rotation: {
-                y : Math.PI
-              }
+              rotation : Math.PI
             }
           }))
         }
@@ -156,14 +154,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             for(var j = 0; j < shelves; j ++) {
               if(delayed && (Math.floor(Math.random() * 10) % 10 === 0) ) {
+                let randVal = Math.floor(Math.random() * 20)
+                console.log(randVal)
+                var status = 0
+
+                if(randVal === 0) {
+                  status = 0
+                }
+                else if (randVal < 16) {
+                  status = 1
+                }
+                else {
+                  status = randVal - 15
+                }
+
                 rows.push({
                   loc : loc + '_' + (j+1),
-                  status: Math.floor(Math.random() * 4)
+                  status: status
                 })
               } else {
                 rows.push({
                   loc : loc + '_' + (j+1),
-                  status: Math.floor(Math.random() * 4)
+                  status: status
                 })
               }
             }

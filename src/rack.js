@@ -48,7 +48,7 @@ export default class Rack extends THREE.Object3D {
     let cy = model.cy;
     let cz = model.cz;
 
-    let rotation = model.rotation || {}
+    let rotation = model.rotation
 
     this.type = model.type
 
@@ -59,7 +59,7 @@ export default class Rack extends THREE.Object3D {
     var board = this.createRackBoard(model.width, model.height)
     board.position.set(0, -model.depth/2, 0)
     board.rotation.x = Math.PI / 2;
-    board.material.opacity = 0.6
+    board.material.opacity = 0.5
     board.material.transparent = true
 
     this.add(board)
@@ -67,7 +67,7 @@ export default class Rack extends THREE.Object3D {
     var board = this.createRackBoard(model.width, model.height)
     board.position.set(0, model.depth/2, 0)
     board.rotation.x = Math.PI / 2;
-    board.material.opacity = 0.6
+    board.material.opacity = 0.5
     board.material.transparent = true
 
     this.add(board)
@@ -89,9 +89,8 @@ export default class Rack extends THREE.Object3D {
     this.add(stock)
 
     this.position.set(cx, cz, cy)
-    this.rotation.x = rotation.x || 0
-    this.rotation.y = rotation.y || 0
-    this.rotation.z = rotation.z || 0
+    this.rotation.y = rotation || 0
+    console.log(rotation)
     this.userData = {
       type : 'rack',
       location : model.location,

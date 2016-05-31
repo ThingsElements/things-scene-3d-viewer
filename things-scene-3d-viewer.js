@@ -440,7 +440,7 @@ var Rack = function (_THREE$Object3D) {
       var cy = model.cy;
       var cz = model.cz;
 
-      var rotation = model.rotation || {};
+      var rotation = model.rotation;
 
       this.type = model.type;
 
@@ -451,7 +451,7 @@ var Rack = function (_THREE$Object3D) {
       var board = this.createRackBoard(model.width, model.height);
       board.position.set(0, -model.depth / 2, 0);
       board.rotation.x = Math.PI / 2;
-      board.material.opacity = 0.6;
+      board.material.opacity = 0.5;
       board.material.transparent = true;
 
       this.add(board);
@@ -459,7 +459,7 @@ var Rack = function (_THREE$Object3D) {
       var board = this.createRackBoard(model.width, model.height);
       board.position.set(0, model.depth / 2, 0);
       board.rotation.x = Math.PI / 2;
-      board.material.opacity = 0.6;
+      board.material.opacity = 0.5;
       board.material.transparent = true;
 
       this.add(board);
@@ -481,9 +481,8 @@ var Rack = function (_THREE$Object3D) {
       this.add(stock);
 
       this.position.set(cx, cz, cy);
-      this.rotation.x = rotation.x || 0;
-      this.rotation.y = rotation.y || 0;
-      this.rotation.z = rotation.z || 0;
+      this.rotation.y = rotation || 0;
+      console.log(rotation);
       this.userData = {
         type: 'rack',
         location: model.location,
@@ -2386,6 +2385,7 @@ var WebGL3dViewer = function () {
       }
 
       this._renderer = new _threejs2.default.WebGLRenderer({ antialias: true, precision: 'lowp' });
+      this._renderer.setClearColor('#424b57');
       this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
 
       this._container.appendChild(this._renderer.domElement);
@@ -2420,7 +2420,7 @@ var WebGL3dViewer = function () {
       // floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
       // floorTexture.repeat.set( 1, 1 );
       // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
-      var floorMaterial = new _threejs2.default.MeshBasicMaterial({ color: 0xffffff, side: _threejs2.default.DoubleSide });
+      var floorMaterial = new _threejs2.default.MeshBasicMaterial({ color: '#7a8696', side: _threejs2.default.DoubleSide });
       var floorGeometry = new _threejs2.default.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
       // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
       // var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);
