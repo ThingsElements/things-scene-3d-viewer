@@ -137,7 +137,7 @@ export default class WebGL3dViewer {
     this.render();
     this.update();
 
-    // this.rotateCam(0.015)
+    this.rotateCam(0.015)
 
   }
 
