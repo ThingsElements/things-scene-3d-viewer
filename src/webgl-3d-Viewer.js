@@ -19,7 +19,7 @@ export default class WebGL3dViewer {
     // EVENTS
     this.bindEvents()
 
-    this.animate()
+    this.run()
 
   }
 
@@ -86,10 +86,11 @@ export default class WebGL3dViewer {
   createFloor() {
 
     // FLOOR
-    var floorTexture = new THREE.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
-    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set( 1, 1 );
-    var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+    // var floorTexture = new THREE.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
+    // floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+    // floorTexture.repeat.set( 1, 1 );
+    // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+    var floorMaterial = new THREE.MeshBasicMaterial( { color : 0xffffff, side: THREE.DoubleSide } );
     var floorGeometry = new THREE.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
     // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
     // var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);
@@ -132,6 +133,9 @@ export default class WebGL3dViewer {
   }
 
   animate() {
+
+    if(!this._isRun)
+      return
 
     requestAnimationFrame( this.animate.bind(this) );
     this.render();
@@ -273,6 +277,15 @@ export default class WebGL3dViewer {
         this._container.removeEventListener('resize', callback);
       }
     };
+  }
+
+  run() {
+    this._isRun = true
+    this.animate()
+  }
+
+  stop() {
+    this._isRun = false;
   }
 
   rotateCam (angle) {

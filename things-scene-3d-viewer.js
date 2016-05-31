@@ -466,8 +466,9 @@ var Rack = function (_THREE$Object3D) {
 
       // var stock = new Stock(model)
       var stock = this.createStock(model.width, model.height, model.depth);
-      var raycast = stock.raycast;
-
+      stock.visible = false;
+      // var raycast = stock.raycast
+      //
       // stock.raycast = function(raycaster, intersects){
       //
       //   if(this.material.transparent && this.material.opacity === 0) {
@@ -2347,7 +2348,7 @@ var WebGL3dViewer = function () {
     // EVENTS
     this.bindEvents();
 
-    this.animate();
+    this.run();
   }
 
   _createClass(WebGL3dViewer, [{
@@ -2415,10 +2416,11 @@ var WebGL3dViewer = function () {
     value: function createFloor() {
 
       // FLOOR
-      var floorTexture = new _threejs2.default.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
-      floorTexture.wrapS = floorTexture.wrapT = _threejs2.default.RepeatWrapping;
-      floorTexture.repeat.set(1, 1);
-      var floorMaterial = new _threejs2.default.MeshBasicMaterial({ map: floorTexture, side: _threejs2.default.DoubleSide });
+      // var floorTexture = new THREE.TextureLoader().load('textures/Light-gray-rough-concrete-wall-Seamless-background-photo-texture.jpg');
+      // floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+      // floorTexture.repeat.set( 1, 1 );
+      // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+      var floorMaterial = new _threejs2.default.MeshBasicMaterial({ color: 0xffffff, side: _threejs2.default.DoubleSide });
       var floorGeometry = new _threejs2.default.BoxGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 1, 10, 10);
       // var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
       // var floorGeometry = new THREE.PlaneGeometry(this.FLOOR_WIDTH, this.FLOOR_HEIGHT, 10, 10);
@@ -2461,11 +2463,13 @@ var WebGL3dViewer = function () {
     key: 'animate',
     value: function animate() {
 
+      if (!this._isRun) return;
+
       requestAnimationFrame(this.animate.bind(this));
       this.render();
       this.update();
 
-      // this.rotateCam(0.015)
+      this.rotateCam(0.015);
     }
   }, {
     key: 'update',
@@ -2597,6 +2601,17 @@ var WebGL3dViewer = function () {
           this._container.removeEventListener('resize', callback);
         }
       };
+    }
+  }, {
+    key: 'run',
+    value: function run() {
+      this._isRun = true;
+      this.animate();
+    }
+  }, {
+    key: 'stop',
+    value: function stop() {
+      this._isRun = false;
     }
   }, {
     key: 'rotateCam',

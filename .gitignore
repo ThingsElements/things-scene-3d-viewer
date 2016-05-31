@@ -1,6 +1,4 @@
 node_modules/
 lib/
 npm-debug.log
-bundle.js
-presentor.js
 bower_components

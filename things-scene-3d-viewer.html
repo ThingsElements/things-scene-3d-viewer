@@ -58,7 +58,7 @@ Example:
   <script src="./things-scene-3d-viewer.js"></script>
 
   <script>
-    var STATUS_COLORS = ['black', 'red', 'green', 'blue']
+    var STATUS_COLORS = ['black', 'red', 'green', '#ff9900']
 
     Polymer({
       is: 'things-scene-3d-viewer',
@@ -93,6 +93,14 @@ Example:
       },
 
       detached: function() {
+      },
+
+      startRotation : function(){
+        this.viewer.run()
+      },
+
+      stopRotation : function(){
+        this.viewer.stop()
       },
 
       _onIronResize: function(e) {

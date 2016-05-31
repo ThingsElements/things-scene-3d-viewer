@@ -56,6 +56,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="button-group">
           <button id="reset">Reset</button>
           <button id="change">Change Model</button>
+          <button id="start">Start Rotation</button>
+          <button id="stop">Stop Rotation</button>
         </div>
       </main>
 
@@ -90,6 +92,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           app.model = model
 
+        })
+
+        app.$.stop.addEventListener('click', function() {
+          app.stopRotation()
+        })
+
+        app.$.start.addEventListener('click', function() {
+          app.startRotation()
         })
 
         function buildRow(top, left, area) {
@@ -168,12 +178,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         app.model = model
         app.data = {
-          rows : dataGen(racks)
+          locations : dataGen(racks)
         }
 
         setInterval(function(){
           app.data = {
-            rows : dataGen(racks, true)
+            locations : dataGen(racks, true)
           }
         }, 5000)
 

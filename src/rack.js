@@ -74,8 +74,9 @@ export default class Rack extends THREE.Object3D {
 
     // var stock = new Stock(model)
     var stock = this.createStock(model.width, model.height, model.depth)
-    var raycast = stock.raycast
-
+    stock.visible = false
+    // var raycast = stock.raycast
+    //
     // stock.raycast = function(raycaster, intersects){
     //
     //   if(this.material.transparent && this.material.opacity === 0) {
