@@ -17,7 +17,7 @@ export default class Rack extends THREE.Object3D {
 
   static createRacks(model, canvasSize) {
 
-    let rotation = model.rotation || {}
+    let rotation = model.rotation || 0
     var racks = [];
 
     for (var i = 0; i < model.shelves; i++) {

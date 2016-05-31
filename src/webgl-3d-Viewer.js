@@ -138,10 +138,7 @@ export default class WebGL3dViewer {
 
   animate() {
 
-    if(!this._isRun)
-      return
-
-    requestAnimationFrame( this.animate.bind(this) );
+    this._animFrame = requestAnimationFrame( this.animate.bind(this) );
     this.render();
     this.update();
 
@@ -284,12 +281,11 @@ export default class WebGL3dViewer {
   }
 
   run() {
-    this._isRun = true
     this.animate()
   }
 
   stop() {
-    this._isRun = false;
+    cancelAnimationFrame(this._animFrame)
   }
 
   rotateCam (angle) {

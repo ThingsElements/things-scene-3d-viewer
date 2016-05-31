@@ -555,7 +555,7 @@ var Rack = function (_THREE$Object3D) {
     key: 'createRacks',
     value: function createRacks(model, canvasSize) {
 
-      var rotation = model.rotation || {};
+      var rotation = model.rotation || 0;
       var racks = [];
 
       for (var i = 0; i < model.shelves; i++) {
@@ -2466,9 +2466,7 @@ var WebGL3dViewer = function () {
     key: 'animate',
     value: function animate() {
 
-      if (!this._isRun) return;
-
-      requestAnimationFrame(this.animate.bind(this));
+      this._animFrame = requestAnimationFrame(this.animate.bind(this));
       this.render();
       this.update();
 
@@ -2608,13 +2606,12 @@ var WebGL3dViewer = function () {
   }, {
     key: 'run',
     value: function run() {
-      this._isRun = true;
       this.animate();
     }
   }, {
     key: 'stop',
     value: function stop() {
-      this._isRun = false;
+      cancelAnimationFrame(this._animFrame);
     }
   }, {
     key: 'rotateCam',

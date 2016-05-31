@@ -50,7 +50,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <main>
         <div class="content">
-          <things-scene-3d-viewer model="[[model]]" data="[[data]]">
+          <things-scene-3d-viewer id="viewer" model="[[model]]" data="[[data]]">
           </things-scene-3d-viewer>
         </div>
         <div class="button-group">
@@ -95,11 +95,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         })
 
         app.$.stop.addEventListener('click', function() {
-          app.stopRotation()
+          app.$.viewer.stopRotation()
         })
 
         app.$.start.addEventListener('click', function() {
-          app.startRotation()
+          app.$.viewer.startRotation()
         })
 
         function buildRow(top, left, area) {
@@ -154,18 +154,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             var loc = m.location;
 
             for(var j = 0; j < shelves; j ++) {
-              if(delayed && (Math.floor(Math.random() * 100) % 100 === 0) ) {
+              var status = 1;
+
+              // if(delayed && (Math.floor(Math.random() * 100) % 100 === 0) ) {
+              //
+              //   if(Math.floor(Math.random() * 100) % 100 === 0){
+              //     status = Math.floor(Math.random() * 5)
+              //   }
+              //
+              //   rows.push({
+              //     loc : loc + '_' + (j+1),
+              //     status: status
+              //   })
+              // } else {
+
+                if(Math.floor(Math.random() * 10) % 10 === 0){
+                  status = Math.floor(Math.random() * 5)
+                }
 
                 rows.push({
                   loc : loc + '_' + (j+1),
-                  status: Math.floor(Math.random() * 5)
+                  status: status
                 })
-              } else {
-                rows.push({
-                  loc : loc + '_' + (j+1),
-                  status: Math.floor(Math.random() * 5)
-                })
-              }
+              // }
             }
           }
 
@@ -185,6 +196,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           app.data = {
             locations : dataGen(racks, true)
           }
+
         }, 5000)
 
       });
