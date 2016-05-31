@@ -128,6 +128,9 @@ Example:
 
       _onDataChanged: function(data) {
 
+        if(!this.viewer)
+          return
+
         if(!data || !data.locations)
           return
 
