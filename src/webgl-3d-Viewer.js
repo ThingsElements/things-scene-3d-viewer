@@ -55,7 +55,7 @@ export default class WebGL3dViewer {
       this._container.removeChild(this._renderer.domElement)
     }
 
-    this._renderer = new THREE.WebGLRenderer( {antialias:true} );
+    this._renderer = new THREE.WebGLRenderer( {antialias:true, precision : 'lowp'} );
     this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
 
     this._container.appendChild( this._renderer.domElement );
@@ -137,7 +137,7 @@ export default class WebGL3dViewer {
     this.render();
     this.update();
 
-    this.rotateCam(0.02)
+    // this.rotateCam(0.015)
 
   }
 
@@ -166,16 +166,22 @@ export default class WebGL3dViewer {
       if ( intersects[ 0 ].object != this.INTERSECTED )
       {
         // restore previous intersection object (if it exists) to its original color
-        if ( this.INTERSECTED )
-          this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
+        // if ( this.INTERSECTED )
+        //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
         // store reference to closest object as current intersection object
         this.INTERSECTED = intersects[ 0 ].object;
         // store color of closest object (for later restoration)
-        this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
+        // this.INTERSECTED.currentHex = this.INTERSECTED.material.color.getHex();
         // set a new color for closest object
         // this.INTERSECTED.material.color.setHex( 0xffff00 );
 
         if( this.INTERSECTED.parent.type === 'rack' ) {
+          var stock = this.INTERSECTED.parent.userData.stock
+          if(!stock.visible)
+            return;
+
+          this.INTERSECTED.parent.userData.isFocused = true
+
           tooltip.textContent = '이것의 location은 ' + this.INTERSECTED.parent.userData.location + " 입니다."
 
           var mouseX = (this._mouse.x + 1) / 2 * this.SCREEN_WIDTH
@@ -194,8 +200,8 @@ export default class WebGL3dViewer {
     else // there are no intersections
     {
       // restore previous intersection object (if it exists) to its original color
-      if ( this.INTERSECTED )
-        this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
+      // if ( this.INTERSECTED )
+      //   this.INTERSECTED.material.color.setHex( this.INTERSECTED.currentHex );
       // remove previous intersection object reference
       //     by setting current intersection object to "nothing"
       this.INTERSECTED = null;

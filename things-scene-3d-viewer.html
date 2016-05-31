@@ -128,19 +128,18 @@ Example:
 
       _onDataChanged: function(data) {
 
-        if(!data || !data.rows)
+        if(!data || !data.locations)
           return
 
-        data.rows.forEach(d => {
+        data.locations.forEach(d => {
           let rack = this.viewer._scene.getObjectByName(d.loc)
           if(rack && rack.userData && rack.userData.stock){
             rack.userData.stock.material.color.set(STATUS_COLORS[d.status])
 
             if(d.status === 0) {
-              rack.userData.stock.material.transparent = true
-              rack.userData.stock.material.opacity = 0
+              rack.userData.stock.visible = false
             } else {
-              rack.userData.stock.material.transparent = false
+              rack.userData.stock.visible = true
             }
 
           }
