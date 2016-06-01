@@ -448,13 +448,13 @@ var Rack = function (_THREE$Object3D) {
 
       this.add(frame);
 
-      var board = this.createRackBoard(model.width, model.height);
-      board.position.set(0, -model.depth / 2, 0);
-      board.rotation.x = Math.PI / 2;
-      board.material.opacity = 0.5;
-      board.material.transparent = true;
-
-      this.add(board);
+      // var board = this.createRackBoard(model.width, model.height)
+      // board.position.set(0, -model.depth/2, 0)
+      // board.rotation.x = Math.PI / 2;
+      // board.material.opacity = 0.5
+      // board.material.transparent = true
+      //
+      // this.add(board)
 
       var board = this.createRackBoard(model.width, model.height);
       board.position.set(0, model.depth / 2, 0);
@@ -2384,7 +2384,8 @@ var WebGL3dViewer = function () {
         this._container.removeChild(this._renderer.domElement);
       }
 
-      this._renderer = new _threejs2.default.WebGLRenderer({ antialias: true });
+      this._renderer = new _threejs2.default.WebGLRenderer({ precision: 'mediump' });
+      // this._renderer = new THREE.WebGLRenderer( {antialias:true, precision: 'mediump'} );
       this._renderer.setClearColor('#424b57');
       this._renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
 

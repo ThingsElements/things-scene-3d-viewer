@@ -56,13 +56,13 @@ export default class Rack extends THREE.Object3D {
 
     this.add(frame)
 
-    var board = this.createRackBoard(model.width, model.height)
-    board.position.set(0, -model.depth/2, 0)
-    board.rotation.x = Math.PI / 2;
-    board.material.opacity = 0.5
-    board.material.transparent = true
-
-    this.add(board)
+    // var board = this.createRackBoard(model.width, model.height)
+    // board.position.set(0, -model.depth/2, 0)
+    // board.rotation.x = Math.PI / 2;
+    // board.material.opacity = 0.5
+    // board.material.transparent = true
+    //
+    // this.add(board)
 
     var board = this.createRackBoard(model.width, model.height)
     board.position.set(0, model.depth/2, 0)
