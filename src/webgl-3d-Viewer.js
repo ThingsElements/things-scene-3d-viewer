@@ -128,9 +128,9 @@ export default class WebGL3dViewer {
     models.forEach(model => {
 
       if(model.type === 'rack'){
-        Rack.createRacks(model, canvasSize).forEach(rack => {
-          scene.add(rack)
-        })
+        var rack = new Rack(model, canvasSize)
+
+        scene.add(rack)
       }
 
     })
@@ -181,14 +181,11 @@ export default class WebGL3dViewer {
         // set a new color for closest object
         // this.INTERSECTED.material.color.setHex( 0xffff00 );
 
-        if( this.INTERSECTED.parent.type === 'rack' ) {
-          var stock = this.INTERSECTED.parent.userData.stock
-          if(!stock.visible)
+        if( this.INTERSECTED.type === 'stock' ) {
+          if(!this.INTERSECTED.visible)
             return;
 
-          this.INTERSECTED.parent.userData.isFocused = true
-
-          tooltip.textContent = '이것의 location은 ' + this.INTERSECTED.parent.userData.location + " 입니다."
+          tooltip.textContent = '이것의 location은 ' + this.INTERSECTED.name + " 입니다."
 
           var mouseX = (this._mouse.x + 1) / 2 * this.SCREEN_WIDTH
           var mouseY = (-this._mouse.y + 1 ) / 2 * this.SCREEN_HEIGHT

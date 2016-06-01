@@ -1,102 +1,65 @@
 import THREE from './threejs'
 import hilbert3D from './threejs/hilbert3D'
-// import Stock from './stock'
+import Stock from './stock'
 // import THREEx from './threejs/threeX'
 
 export default class Rack extends THREE.Object3D {
 
-  constructor(model) {
+  constructor(model, canvasSize) {
 
     super();
 
     this._model = model;
 
-    this.createObject(model);
+    this.createObject(model, canvasSize);
 
   }
 
-  static createRacks(model, canvasSize) {
+  createObject(model, canvasSize) {
 
-    let rotation = model.rotation || 0
-    var racks = [];
+    let scale = 0.7;
 
-    for (var i = 0; i < model.shelves; i++) {
-
-      var m = {
-        type : model.type,
-        cx : (model.left + (model.width/2)) - canvasSize.width/2,
-        cy : (model.top + (model.height/2)) - canvasSize.height/2,
-        cz : (i + 0.5) * model.depth,
-        width : model.width,
-        height : model.height,
-        depth: model.depth,
-        rotation : rotation,
-        location : model.location + "_" + (i+1),
-        status: model.status
-      }
-
-      racks.push(new Rack(m))
-    }
-
-    return racks;
-
-  }
-
-  createObject(model) {
-
-    let cx = model.cx;
-    let cy = model.cy;
-    let cz = model.cz;
+    let cx = (model.left + (model.width/2)) - canvasSize.width/2
+    let cy = (model.top + (model.height/2)) - canvasSize.height/2
+    let cz = 0.5 * model.depth * model.shelves
 
     let rotation = model.rotation
 
     this.type = model.type
 
-    var frame = this.createRackFrame(model.width, model.height, model.depth)
+    var frame = this.createRackFrame(model.width, model.height, model.depth * model.shelves)
 
     this.add(frame)
 
-    // var board = this.createRackBoard(model.width, model.height)
-    // board.position.set(0, -model.depth/2, 0)
-    // board.rotation.x = Math.PI / 2;
-    // board.material.opacity = 0.5
-    // board.material.transparent = true
-    //
-    // this.add(board)
+    for(var i = 0; i < model.shelves; i++) {
 
-    var board = this.createRackBoard(model.width, model.height)
-    board.position.set(0, model.depth/2, 0)
-    board.rotation.x = Math.PI / 2;
-    board.material.opacity = 0.5
-    board.material.transparent = true
+      let bottom = - model.depth * model.shelves * 0.5
+      if( i > 0) {
+        let board = this.createRackBoard(model.width, model.height)
+        board.position.set(0, bottom + (model.depth * i), 0)
+        board.rotation.x = Math.PI / 2;
+        board.material.opacity = 0.5
+        board.material.transparent = true
 
-    this.add(board)
+        this.add(board)
+      }
 
-    // var stock = new Stock(model)
-    var stock = this.createStock(model.width, model.height, model.depth)
-    // stock.visible = false
-    // var raycast = stock.raycast
-    //
-    // stock.raycast = function(raycaster, intersects){
-    //
-    //   if(this.material.transparent && this.material.opacity === 0) {
-    //     return
-    //   } else {
-    //     raycast()
-    //   }
-    //
-    // }
-    this.add(stock)
+      let stock = new Stock({
+        width : model.width * scale,
+        height : model.height * scale,
+        depth : model.depth * scale
+      })
+
+      let stockDepth = model.depth * scale
+
+      stock.position.set(0, bottom + (model.depth * i) + (stockDepth * 0.5), 0)
+      stock.name = model.location + "_" + i
+
+      this.add(stock)
+    }
 
     this.position.set(cx, cz, cy)
     this.rotation.y = rotation || 0
-
-    this.userData = {
-      type : 'rack',
-      location : model.location,
-      stock : stock
-    }
-    this.name = model.location
 
   }
 
@@ -123,27 +86,10 @@ export default class Rack extends THREE.Object3D {
 
     // var boardMaterial = new THREE.MeshBasicMaterial( { map: boardTexture, side: THREE.DoubleSide } );
     var boardMaterial = new THREE.MeshBasicMaterial( { color: '#dedede', side: THREE.DoubleSide } );
-    var boardGeometry = new THREE.PlaneGeometry(w, h, 10, 10);
+    var boardGeometry = new THREE.PlaneGeometry(w, h, 1, 1);
     var board = new THREE.Mesh(boardGeometry, boardMaterial);
 
     return board
-  }
-
-  createStock(w, h, d) {
-
-    let scale = 0.7;
-
-    var stockGeometry = new THREE.BoxGeometry(w * scale, d * scale, h * scale);
-    // var stockMaterial = new THREE.MeshBasicMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
-    var stockMaterial = new THREE.MeshLambertMaterial( { color : '#ccaa76', side: THREE.DoubleSide } );
-
-    var stock = new THREE.Mesh(stockGeometry, stockMaterial)
-    stock.type = 'stock'
-    stock.position.set(0, -(1-scale) * 0.5 * d , 0)
-    stock.material.transparent = true;
-    stock.material.opacity = 0.9
-
-    return stock;
   }
 
   cube( size ) {

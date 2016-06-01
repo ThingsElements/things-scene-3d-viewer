@@ -406,6 +406,10 @@ var _hilbert3D = require('./threejs/hilbert3D');
 
 var _hilbert3D2 = _interopRequireDefault(_hilbert3D);
 
+var _stock = require('./stock');
+
+var _stock2 = _interopRequireDefault(_stock);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -414,81 +418,70 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// import Stock from './stock'
 // import THREEx from './threejs/threeX'
 
 var Rack = function (_THREE$Object3D) {
   _inherits(Rack, _THREE$Object3D);
 
-  function Rack(model) {
+  function Rack(model, canvasSize) {
     _classCallCheck(this, Rack);
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Rack).call(this));
 
     _this._model = model;
 
-    _this.createObject(model);
+    _this.createObject(model, canvasSize);
 
     return _this;
   }
 
   _createClass(Rack, [{
     key: 'createObject',
-    value: function createObject(model) {
+    value: function createObject(model, canvasSize) {
 
-      var cx = model.cx;
-      var cy = model.cy;
-      var cz = model.cz;
+      var scale = 0.7;
+
+      var cx = model.left + model.width / 2 - canvasSize.width / 2;
+      var cy = model.top + model.height / 2 - canvasSize.height / 2;
+      var cz = 0.5 * model.depth * model.shelves;
 
       var rotation = model.rotation;
 
       this.type = model.type;
 
-      var frame = this.createRackFrame(model.width, model.height, model.depth);
+      var frame = this.createRackFrame(model.width, model.height, model.depth * model.shelves);
 
       this.add(frame);
 
-      // var board = this.createRackBoard(model.width, model.height)
-      // board.position.set(0, -model.depth/2, 0)
-      // board.rotation.x = Math.PI / 2;
-      // board.material.opacity = 0.5
-      // board.material.transparent = true
-      //
-      // this.add(board)
+      for (var i = 0; i < model.shelves; i++) {
 
-      var board = this.createRackBoard(model.width, model.height);
-      board.position.set(0, model.depth / 2, 0);
-      board.rotation.x = Math.PI / 2;
-      board.material.opacity = 0.5;
-      board.material.transparent = true;
+        var bottom = -model.depth * model.shelves * 0.5;
+        if (i > 0) {
+          var board = this.createRackBoard(model.width, model.height);
+          board.position.set(0, bottom + model.depth * i, 0);
+          board.rotation.x = Math.PI / 2;
+          board.material.opacity = 0.5;
+          board.material.transparent = true;
 
-      this.add(board);
+          this.add(board);
+        }
 
-      // var stock = new Stock(model)
-      var stock = this.createStock(model.width, model.height, model.depth);
-      // stock.visible = false
-      // var raycast = stock.raycast
-      //
-      // stock.raycast = function(raycaster, intersects){
-      //
-      //   if(this.material.transparent && this.material.opacity === 0) {
-      //     return
-      //   } else {
-      //     raycast()
-      //   }
-      //
-      // }
-      this.add(stock);
+        var stock = new _stock2.default({
+          width: model.width * scale,
+          height: model.height * scale,
+          depth: model.depth * scale
+        });
+
+        var stockDepth = model.depth * scale;
+
+        stock.position.set(0, bottom + model.depth * i + stockDepth * 0.5, 0);
+        stock.name = model.location + "_" + i;
+
+        this.add(stock);
+      }
 
       this.position.set(cx, cz, cy);
       this.rotation.y = rotation || 0;
-
-      this.userData = {
-        type: 'rack',
-        location: model.location,
-        stock: stock
-      };
-      this.name = model.location;
     }
   }, {
     key: 'createRackFrame',
@@ -512,28 +505,10 @@ var Rack = function (_THREE$Object3D) {
 
       // var boardMaterial = new THREE.MeshBasicMaterial( { map: boardTexture, side: THREE.DoubleSide } );
       var boardMaterial = new _threejs2.default.MeshBasicMaterial({ color: '#dedede', side: _threejs2.default.DoubleSide });
-      var boardGeometry = new _threejs2.default.PlaneGeometry(w, h, 10, 10);
+      var boardGeometry = new _threejs2.default.PlaneGeometry(w, h, 1, 1);
       var board = new _threejs2.default.Mesh(boardGeometry, boardMaterial);
 
       return board;
-    }
-  }, {
-    key: 'createStock',
-    value: function createStock(w, h, d) {
-
-      var scale = 0.7;
-
-      var stockGeometry = new _threejs2.default.BoxGeometry(w * scale, d * scale, h * scale);
-      // var stockMaterial = new THREE.MeshBasicMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
-      var stockMaterial = new _threejs2.default.MeshLambertMaterial({ color: '#ccaa76', side: _threejs2.default.DoubleSide });
-
-      var stock = new _threejs2.default.Mesh(stockGeometry, stockMaterial);
-      stock.type = 'stock';
-      stock.position.set(0, -(1 - scale) * 0.5 * d, 0);
-      stock.material.transparent = true;
-      stock.material.opacity = 0.9;
-
-      return stock;
     }
   }, {
     key: 'cube',
@@ -551,33 +526,6 @@ var Rack = function (_THREE$Object3D) {
   }, {
     key: 'raycast',
     value: function raycast(raycaster, intersects) {}
-  }], [{
-    key: 'createRacks',
-    value: function createRacks(model, canvasSize) {
-
-      var rotation = model.rotation || 0;
-      var racks = [];
-
-      for (var i = 0; i < model.shelves; i++) {
-
-        var m = {
-          type: model.type,
-          cx: model.left + model.width / 2 - canvasSize.width / 2,
-          cy: model.top + model.height / 2 - canvasSize.height / 2,
-          cz: (i + 0.5) * model.depth,
-          width: model.width,
-          height: model.height,
-          depth: model.depth,
-          rotation: rotation,
-          location: model.location + "_" + (i + 1),
-          status: model.status
-        };
-
-        racks.push(new Rack(m));
-      }
-
-      return racks;
-    }
   }]);
 
   return Rack;
@@ -585,7 +533,7 @@ var Rack = function (_THREE$Object3D) {
 
 exports.default = Rack;
 
-},{"./threejs":9,"./threejs/hilbert3D":8}],5:[function(require,module,exports){
+},{"./stock":5,"./threejs":9,"./threejs/hilbert3D":8}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -593,8 +541,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
 var _threejs = require('./threejs');
 
@@ -614,13 +560,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 // import THREEx from './threejs/threeX'
 
-var Rack = function (_THREE$Mesh) {
-  _inherits(Rack, _THREE$Mesh);
+var Stock = function (_THREE$Mesh) {
+  _inherits(Stock, _THREE$Mesh);
 
-  function Rack(model) {
-    _classCallCheck(this, Rack);
+  function Stock(model) {
+    _classCallCheck(this, Stock);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Rack).call(this));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Stock).call(this));
 
     _this._model = model;
 
@@ -629,13 +575,9 @@ var Rack = function (_THREE$Mesh) {
     return _this;
   }
 
-  _createClass(Rack, [{
+  _createClass(Stock, [{
     key: 'createObject',
     value: function createObject(model) {
-
-      var cx = model.cx;
-      var cy = model.cy;
-      var cz = model.cz;
 
       this.createStock(model.width, model.height, model.depth);
     }
@@ -643,30 +585,16 @@ var Rack = function (_THREE$Mesh) {
     key: 'createStock',
     value: function createStock(w, h, d) {
 
-      var scale = 0.7;
-
-      this.geometry = new _threejs2.default.BoxGeometry(w * scale, d * scale, h * scale);
-      // var stockMaterial = new THREE.MeshBasicMaterial( { color : '#ff9900', side: THREE.DoubleSide } );
-      this.material = new _threejs2.default.MeshLambertMaterial({ color: '#ff9900', side: _threejs2.default.DoubleSide });
-
-      var stock = new _threejs2.default.Mesh(this.geometry, this.material);
+      this.geometry = new _threejs2.default.BoxGeometry(w, d, h);
+      this.material = new _threejs2.default.MeshLambertMaterial({ color: '#ccaa76', side: _threejs2.default.DoubleSide });
       this.type = 'stock';
-      this.position.set(0, -(1 - scale) * 0.5 * d, 0);
-    }
-  }, {
-    key: 'raycast',
-    value: function raycast(raycaster, intersects) {
-
-      if (this.material.transparent && this.material.opacity === 0) return;
-
-      _get(Object.getPrototypeOf(Rack.prototype), 'raycast', this).call(this);
     }
   }]);
 
-  return Rack;
+  return Stock;
 }(_threejs2.default.Mesh);
 
-exports.default = Rack;
+exports.default = Stock;
 
 },{"./threejs":9,"./threejs/hilbert3D":8}],6:[function(require,module,exports){
 'use strict';
@@ -2457,9 +2385,9 @@ var WebGL3dViewer = function () {
       models.forEach(function (model) {
 
         if (model.type === 'rack') {
-          _rack2.default.createRacks(model, canvasSize).forEach(function (rack) {
-            scene.add(rack);
-          });
+          var rack = new _rack2.default(model, canvasSize);
+
+          scene.add(rack);
         }
       });
     }
@@ -2507,13 +2435,10 @@ var WebGL3dViewer = function () {
           // set a new color for closest object
           // this.INTERSECTED.material.color.setHex( 0xffff00 );
 
-          if (this.INTERSECTED.parent.type === 'rack') {
-            var stock = this.INTERSECTED.parent.userData.stock;
-            if (!stock.visible) return;
+          if (this.INTERSECTED.type === 'stock') {
+            if (!this.INTERSECTED.visible) return;
 
-            this.INTERSECTED.parent.userData.isFocused = true;
-
-            tooltip.textContent = '이것의 location은 ' + this.INTERSECTED.parent.userData.location + " 입니다.";
+            tooltip.textContent = '이것의 location은 ' + this.INTERSECTED.name + " 입니다.";
 
             var mouseX = (this._mouse.x + 1) / 2 * this.SCREEN_WIDTH;
             var mouseY = (-this._mouse.y + 1) / 2 * this.SCREEN_HEIGHT;
