@@ -2,6 +2,7 @@ import THREE from './threejs'
 import THREEx from './threejs/threeX'
 import Rack from './rack'
 import ForkLift from './forkLift'
+import Person from './person'
 
 export default class WebGL3dViewer {
 
@@ -186,23 +187,29 @@ export default class WebGL3dViewer {
 
     models.forEach(model => {
 
+      var item
       switch (model.type) {
 
         case 'rack':
 
-          var rack = new Rack(model, canvasSize)
-          scene.add(rack)
+          item = new Rack(model, canvasSize)
           break;
 
         case 'forklift':
 
-          var forkLift = new ForkLift(model, canvasSize)
-          scene.add(forkLift)
+          item = new ForkLift(model, canvasSize)
+
+          break;
+        case 'person':
+
+          item = new Person(model, canvasSize)
 
           break;
         default:
+          break;
 
       }
+      scene.add(item)
 
     })
 

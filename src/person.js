@@ -2,7 +2,7 @@ import THREE from './threejs'
 import hilbert3D from './threejs/hilbert3D'
 // import THREEx from './threejs/threeX'
 
-export default class ForkLift extends THREE.Object3D {
+export default class Person extends THREE.Object3D {
 
   constructor(model, canvasSize) {
 
@@ -25,14 +25,13 @@ export default class ForkLift extends THREE.Object3D {
 
     let rotation = model.rotation
 
-    this.type = 'forklift'
+    this.type = 'person'
     this.scale.normalize()
 
-
-    this.loadExtMtl('obj/Fork_lift/', 'ForkLift.mtl', '', function(materials){
+    this.loadExtMtl('obj/Casual_Man_02/', 'Casual_Man.mtl', '', function(materials){
       materials.preload();
 
-      this.loadExtObj('obj/Fork_lift/', 'ForkLift.obj', materials, function(object){
+      this.loadExtObj('obj/Casual_Man_02/', 'Casual_Man.obj', materials, function(object){
         object.traverse(function(child){
           if(child instanceof THREE.Mesh) {
             // child.matrix.scale(model.width, model.depth, model.height)
@@ -49,7 +48,7 @@ export default class ForkLift extends THREE.Object3D {
         this.position.set(cx, 0, cy)
         this.add(object)
         this.rotation.y = model.rotation || 0
-        // console.log(model)
+
       })
     })
 

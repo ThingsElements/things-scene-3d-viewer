@@ -3,13 +3,15 @@ import Cube from './cube'
 import Floor from './floor'
 import Rack from './rack'
 import ForkLift from './forkLift'
+import Person from './person'
 
 var ThingsScene3dViewer = {
   WebGL3dViewer,
   Cube,
   Floor,
   Rack,
-  ForkLift
+  ForkLift,
+  Person
 }
 
 if(typeof window !== 'undefined')
