@@ -1,6 +1,7 @@
 import THREE from './threejs'
 import THREEx from './threejs/threeX'
 import Rack from './rack'
+import ForkLift from './forkLift'
 
 export default class WebGL3dViewer {
 
@@ -26,6 +27,8 @@ export default class WebGL3dViewer {
   init() {
 
     var model = this._model
+
+    this.registerLoaders()
 
     // PROPERTY
     this._mouse = { x: 0, y: 0 }
@@ -83,6 +86,62 @@ export default class WebGL3dViewer {
     // initialize object to perform world/screen calculations
     this._projector = new THREE.Projector();
 
+    this._loadManager = new THREE.LoadingManager();
+    this._loadManager.onProgress = function(item, loaded, total){
+
+    }
+
+
+    // this.loadExtMtl('obj/Casual_Man_02/', 'Casual_Man.mtl', '', function(materials){
+    //   materials.preload();
+    //
+    //   this.loadExtObj('obj/Casual_Man_02/', 'Casual_Man.obj', materials, function(object){
+    //
+    //     object.position.x = 0;
+    //     object.position.y = 0;
+    //     object.position.z = 350;
+    //     object.rotation.y = Math.PI;
+    //     object.scale.set(15, 15, 15)
+    //
+    //     this._scene.add(object);
+    //   })
+    // })
+
+  }
+
+  registerLoaders() {
+    THREE.Loader.Handlers.add( /\.tga$/i, new THREE.TGALoader() );
+  }
+
+  loadExtMtl(path, filename, texturePath, funcSuccess) {
+
+    var self = this;
+    var mtlLoader = new THREE.MTLLoader();
+    mtlLoader.setPath(path)
+    if(texturePath)
+      mtlLoader.setTexturePath(texturePath)
+
+    mtlLoader.load(filename, funcSuccess.bind(self))
+
+  }
+
+  loadExtObj(path, filename, materials, funcSuccess) {
+    var self = this;
+    var loader = new THREE.OBJLoader(this._loadManager);
+
+    loader.setPath(path)
+
+    if(materials)
+      loader.setMaterials(materials);
+
+    loader.load(filename,
+      funcSuccess.bind(self)
+      , function(){
+    }, function(){
+      console.log("error")
+    })
+
+
   }
 
   createFloor() {
@@ -127,10 +186,19 @@ export default class WebGL3dViewer {
 
     models.forEach(model => {
 
-      if(model.type === 'rack'){
-        var rack = new Rack(model, canvasSize)
+      switch (model.type) {
+        case 'rack':
+          var rack = new Rack(model, canvasSize)
 
-        scene.add(rack)
+          scene.add(rack)
+          break;
+        case 'forkLift':
+          var forkLift = new ForkLift(model, canvasSize)
+          scene.add(forkLift)
+
+          break;
+        default:
+
       }
 
     })
@@ -140,10 +208,11 @@ export default class WebGL3dViewer {
   animate() {
 
     this._animFrame = requestAnimationFrame( this.animate.bind(this) );
+    this.rotateCam(0.015)
     this.render();
     this.update();
 
-    this.rotateCam(0.015)
+
 
   }
 
