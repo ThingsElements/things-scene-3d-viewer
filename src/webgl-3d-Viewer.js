@@ -192,7 +192,7 @@ export default class WebGL3dViewer {
 
           scene.add(rack)
           break;
-        case 'forkLift':
+        case 'forklift':
           var forkLift = new ForkLift(model, canvasSize)
           scene.add(forkLift)
 
