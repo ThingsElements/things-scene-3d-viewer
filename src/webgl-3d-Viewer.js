@@ -187,12 +187,15 @@ export default class WebGL3dViewer {
     models.forEach(model => {
 
       switch (model.type) {
-        case 'rack':
-          var rack = new Rack(model, canvasSize)
 
+        case 'rack':
+
+          var rack = new Rack(model, canvasSize)
           scene.add(rack)
           break;
+
         case 'forklift':
+
           var forkLift = new ForkLift(model, canvasSize)
           scene.add(forkLift)
 
@@ -211,8 +214,6 @@ export default class WebGL3dViewer {
     this.rotateCam(0.015)
     this.render();
     this.update();
-
-
 
   }
 

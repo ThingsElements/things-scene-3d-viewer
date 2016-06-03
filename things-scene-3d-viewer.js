@@ -4091,12 +4091,15 @@ var WebGL3dViewer = function () {
       models.forEach(function (model) {
 
         switch (model.type) {
-          case 'rack':
-            var rack = new _rack2.default(model, canvasSize);
 
+          case 'rack':
+
+            var rack = new _rack2.default(model, canvasSize);
             scene.add(rack);
             break;
-          case 'forkLift':
+
+          case 'forklift':
+
             var forkLift = new _forkLift2.default(model, canvasSize);
             scene.add(forkLift);
 
@@ -4265,4 +4268,4 @@ var WebGL3dViewer = function () {
 
 exports.default = WebGL3dViewer;
 
-},{"./forkLift":3,"./rack":5,"./threejs":13,"./threejs/threeX":17}]},{},[1,2,4,5,6,18]);
+},{"./forkLift":3,"./rack":5,"./threejs":13,"./threejs/threeX":17}]},{},[1,2,3,4,5,6,18]);
