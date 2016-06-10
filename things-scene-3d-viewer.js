@@ -374,6 +374,24 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 // import THREEx from './threejs/threeX'
 
+_threejs2.default.Loader.Handlers.add(/\.tga$/i, new _threejs2.default.TGALoader());
+
+var objLoader = new _threejs2.default.OBJLoader();
+var mtlLoader = new _threejs2.default.MTLLoader();
+objLoader.setPath('obj/Fork_lift/');
+mtlLoader.setPath('obj/Fork_lift/');
+
+var extObj;
+
+mtlLoader.load('ForkLift.mtl', function (materials) {
+  materials.preload();
+  objLoader.setMaterials(materials);
+
+  objLoader.load('ForkLift.obj', function (obj) {
+    extObj = obj;
+  });
+});
+
 var ForkLift = function (_THREE$Object3D) {
   _inherits(ForkLift, _THREE$Object3D);
 
@@ -393,6 +411,11 @@ var ForkLift = function (_THREE$Object3D) {
     key: 'createObject',
     value: function createObject(model, canvasSize) {
 
+      if (!ForkLift.extObject) {
+        setTimeout(this.createObject.bind(this, model, canvasSize), 50);
+        return;
+      }
+
       var cx = model.left + model.width / 2 - canvasSize.width / 2;
       var cy = model.top + model.height / 2 - canvasSize.height / 2;
       var cz = 0.5 * model.depth;
@@ -403,31 +426,36 @@ var ForkLift = function (_THREE$Object3D) {
       var rotation = model.rotation;
 
       this.type = 'forklift';
-      this.scale.normalize();
 
-      this.loadExtMtl('obj/Fork_lift/', 'ForkLift.mtl', '', function (materials) {
-        materials.preload();
+      this.add(ForkLift.extObject.clone());
+      this.scale.set(10, 10, 10);
+      // this.scale.set(model.width, model.depth, model.height)
+      this.position.set(cx, 0, cy);
+      this.rotation.y = model.rotation || 0;
 
-        this.loadExtObj('obj/Fork_lift/', 'ForkLift.obj', materials, function (object) {
-          object.traverse(function (child) {
-            if (child instanceof _threejs2.default.Mesh) {
-              // child.matrix.scale(model.width, model.depth, model.height)
-            }
-          });
-
-          // console.log(object.matrixWorld, object.matrix)
-          // this.matrixWorld.makeScale(model.width, model.depth, model.height)
-          // object.scale.normalize()
-          // object.scale.set(model.width, model.depth, model.height)
-          // object.matrix.scale(model.width, model.depth, model.height)
-          // console.log(object)
-          this.scale.set(10, 10, 10);
-          this.position.set(cx, 0, cy);
-          this.add(object);
-          this.rotation.y = model.rotation || 0;
-          // console.log(model)
-        });
-      });
+      // this.loadExtMtl('obj/Fork_lift/', 'ForkLift.mtl', '', function(materials){
+      //   materials.preload();
+      //
+      //   this.loadExtObj('obj/Fork_lift/', 'ForkLift.obj', materials, function(object){
+      //     object.traverse(function(child){
+      //       if(child instanceof THREE.Mesh) {
+      //         // child.matrix.scale(model.width, model.depth, model.height)
+      //       }
+      //     })
+      //
+      //     // console.log(object.matrixWorld, object.matrix)
+      //     // this.matrixWorld.makeScale(model.width, model.depth, model.height)
+      //     // object.scale.normalize()
+      //     // object.scale.set(model.width, model.depth, model.height)
+      //     // object.matrix.scale(model.width, model.depth, model.height)
+      //     // console.log(object)
+      //     this.scale.set(1, 1, 1)
+      //     this.position.set(cx, 0, cy)
+      //     this.add(object)
+      //     this.rotation.y = model.rotation || 0
+      //     // console.log(model)
+      //   })
+      // })
 
       // this.scale.set(model.width, model.depth, model.height)
       // console.log(this.matrixWorld, this.matrix)
@@ -457,6 +485,11 @@ var ForkLift = function (_THREE$Object3D) {
       loader.load(filename, funcSuccess.bind(self), function () {}, function () {
         console.log("error");
       });
+    }
+  }], [{
+    key: 'extObject',
+    get: function get() {
+      return extObj;
     }
   }]);
 
@@ -544,6 +577,22 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 // import THREEx from './threejs/threeX'
 
+var objLoader = new _threejs2.default.OBJLoader();
+var mtlLoader = new _threejs2.default.MTLLoader();
+objLoader.setPath('obj/Casual_Man_02/');
+mtlLoader.setPath('obj/Casual_Man_02/');
+
+var extObj;
+
+mtlLoader.load('Casual_Man.mtl', function (materials) {
+  materials.preload();
+  objLoader.setMaterials(materials);
+
+  objLoader.load('Casual_Man.obj', function (obj) {
+    extObj = obj;
+  });
+});
+
 var Person = function (_THREE$Object3D) {
   _inherits(Person, _THREE$Object3D);
 
@@ -563,6 +612,11 @@ var Person = function (_THREE$Object3D) {
     key: 'createObject',
     value: function createObject(model, canvasSize) {
 
+      if (!Person.extObject) {
+        setTimeout(this.createObject.bind(this, model, canvasSize), 50);
+        return;
+      }
+
       var cx = model.left + model.width / 2 - canvasSize.width / 2;
       var cy = model.top + model.height / 2 - canvasSize.height / 2;
       var cz = 0.5 * model.depth;
@@ -573,30 +627,37 @@ var Person = function (_THREE$Object3D) {
       var rotation = model.rotation;
 
       this.type = 'person';
-      this.scale.normalize();
+      this.add(Person.extObject.clone());
+      this.scale.set(10, 10, 10);
+      // this.scale.set(model.width, model.depth, model.height)
+      this.position.set(cx, 0, cy);
+      this.rotation.y = model.rotation || 0;
 
-      this.loadExtMtl('obj/Casual_Man_02/', 'Casual_Man.mtl', '', function (materials) {
-        materials.preload();
+      // this.scale.normalize()
 
-        this.loadExtObj('obj/Casual_Man_02/', 'Casual_Man.obj', materials, function (object) {
-          object.traverse(function (child) {
-            if (child instanceof _threejs2.default.Mesh) {
-              // child.matrix.scale(model.width, model.depth, model.height)
-            }
-          });
-
-          // console.log(object.matrixWorld, object.matrix)
-          // this.matrixWorld.makeScale(model.width, model.depth, model.height)
-          // object.scale.normalize()
-          // object.scale.set(model.width, model.depth, model.height)
-          // object.matrix.scale(model.width, model.depth, model.height)
-          // console.log(object)
-          this.scale.set(10, 10, 10);
-          this.position.set(cx, 0, cy);
-          this.add(object);
-          this.rotation.y = model.rotation || 0;
-        });
-      });
+      // this.loadExtMtl('obj/Casual_Man_02/', 'Casual_Man.mtl', '', function(materials){
+      //   materials.preload();
+      //
+      //   this.loadExtObj('obj/Casual_Man_02/', 'Casual_Man.obj', materials, function(object){
+      //     object.traverse(function(child){
+      //       if(child instanceof THREE.Mesh) {
+      //         // child.matrix.scale(model.width, model.depth, model.height)
+      //       }
+      //     })
+      //
+      //     // console.log(object.matrixWorld, object.matrix)
+      //     // this.matrixWorld.makeScale(model.width, model.depth, model.height)
+      //     // object.scale.normalize()
+      //     // object.scale.set(model.width, model.depth, model.height)
+      //     // object.matrix.scale(model.width, model.depth, model.height)
+      //     // console.log(object)
+      //     this.scale.set(10, 10, 10)
+      //     this.position.set(cx, 0, cy)
+      //     this.add(object)
+      //     this.rotation.y = model.rotation || 0
+      //
+      //   })
+      // })
 
       // this.scale.set(model.width, model.depth, model.height)
       // console.log(this.matrixWorld, this.matrix)
@@ -626,6 +687,11 @@ var Person = function (_THREE$Object3D) {
       loader.load(filename, funcSuccess.bind(self), function () {}, function () {
         console.log("error");
       });
+    }
+  }], [{
+    key: 'extObject',
+    get: function get() {
+      return extObj;
     }
   }]);
 
@@ -4396,4 +4462,4 @@ var WebGL3dViewer = function () {
 
 exports.default = WebGL3dViewer;
 
-},{"./forkLift":3,"./person":5,"./rack":6,"./threejs":14,"./threejs/threeX":18}]},{},[1,2,3,4,6,7,19]);
+},{"./forkLift":3,"./person":5,"./rack":6,"./threejs":14,"./threejs/threeX":18}]},{},[1,2,3,4,5,6,7,19]);
