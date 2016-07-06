@@ -238,14 +238,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         app.model = model
-        app.data = {
-          locations : dataGen(racks)
-        }
+        app.data = dataGen(racks)
 
         setInterval(function(){
-          app.data = {
-            locations : dataGen(racks, true)
-          }
+          app.data = dataGen(racks)
 
         }, 5000)
 

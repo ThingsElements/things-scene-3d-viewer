@@ -15,6 +15,7 @@ var extObj
 mtlLoader.load('ForkLift.mtl', function(materials){
   materials.preload();
   objLoader.setMaterials(materials)
+  materials.side = THREE.frontSide
 
   objLoader.load('ForkLift.obj', function(obj){
     extObj = obj

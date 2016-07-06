@@ -14,6 +14,7 @@ var extObj
 mtlLoader.load('Casual_Man.mtl', function(materials){
   materials.preload();
   objLoader.setMaterials(materials)
+  materials.side = THREE.frontSide
 
   objLoader.load('Casual_Man.obj', function(obj){
     extObj = obj

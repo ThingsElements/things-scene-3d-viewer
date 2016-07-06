@@ -185,6 +185,8 @@ export default class WebGL3dViewer {
       height: this.FLOOR_HEIGHT
     }
 
+    var obj = new THREE.Object3D();
+
     models.forEach(model => {
 
       var item
@@ -209,9 +211,11 @@ export default class WebGL3dViewer {
           break;
 
       }
-      scene.add(item)
+      obj.add(item)
 
     })
+
+    scene.add(obj);
 
   }
 
@@ -262,7 +266,23 @@ export default class WebGL3dViewer {
           if(!this.INTERSECTED.visible)
             return;
 
-          tooltip.textContent = '이것의 location은 ' + this.INTERSECTED.name + " 입니다."
+          if(!this.INTERSECTED.userData)
+            this.INTERSECTED.userData = {};
+
+          var loc = this.INTERSECTED.name;
+          var status = this.INTERSECTED.userData.status;
+          var boxId = this.INTERSECTED.userData.boxId;
+          var inDate = this.INTERSECTED.userData.inDate;
+          var type = this.INTERSECTED.userData.type;
+          var count = this.INTERSECTED.userData.count;
+
+
+          tooltip.textContent = '';
+
+          for (let key in this.INTERSECTED.userData) {
+            if(this.INTERSECTED.userData[key])
+              tooltip.textContent += key + ": " + this.INTERSECTED.userData[key] + "\n"
+          }
 
           var mouseX = (this._mouse.x + 1) / 2 * this.SCREEN_WIDTH
           var mouseY = (-this._mouse.y + 1 ) / 2 * this.SCREEN_HEIGHT
@@ -338,6 +358,7 @@ export default class WebGL3dViewer {
       // notify the renderer of the size change
       // renderer.setSize( window.innerWidth, window.innerHeight );
       renderer.setSize( this.SCREEN_WIDTH, this.SCREEN_HEIGHT );
+      renderer.setFaceCulling("front_and_back", "cw")
       // update the camera
       camera.aspect	= this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
       camera.updateProjectionMatrix();

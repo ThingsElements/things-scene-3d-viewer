@@ -386,6 +386,7 @@ var extObj;
 mtlLoader.load('ForkLift.mtl', function (materials) {
   materials.preload();
   objLoader.setMaterials(materials);
+  materials.side = _threejs2.default.frontSide;
 
   objLoader.load('ForkLift.obj', function (obj) {
     extObj = obj;
@@ -587,6 +588,7 @@ var extObj;
 mtlLoader.load('Casual_Man.mtl', function (materials) {
   materials.preload();
   objLoader.setMaterials(materials);
+  materials.side = _threejs2.default.frontSide;
 
   objLoader.load('Casual_Man.obj', function (obj) {
     extObj = obj;
@@ -785,7 +787,7 @@ var Rack = function (_THREE$Object3D) {
         var stockDepth = model.depth * scale;
 
         stock.position.set(0, bottom + model.depth * i + stockDepth * 0.5, 0);
-        stock.name = model.location + "_" + i;
+        stock.name = model.location + "_" + (i + 1);
 
         this.add(stock);
       }
@@ -896,7 +898,7 @@ var Stock = function (_THREE$Mesh) {
     value: function createStock(w, h, d) {
 
       this.geometry = new _threejs2.default.BoxGeometry(w, d, h);
-      this.material = new _threejs2.default.MeshLambertMaterial({ color: '#ccaa76', side: _threejs2.default.DoubleSide });
+      this.material = new _threejs2.default.MeshLambertMaterial({ color: '#ccaa76', side: _threejs2.default.FrontSide });
       this.type = 'stock';
     }
   }]);
@@ -4276,6 +4278,8 @@ var WebGL3dViewer = function () {
         height: this.FLOOR_HEIGHT
       };
 
+      var obj = new _threejs2.default.Object3D();
+
       models.forEach(function (model) {
 
         var item;
@@ -4300,8 +4304,10 @@ var WebGL3dViewer = function () {
             break;
 
         }
-        scene.add(item);
+        obj.add(item);
       });
+
+      scene.add(obj);
     }
   }, {
     key: 'animate',
@@ -4349,7 +4355,20 @@ var WebGL3dViewer = function () {
           if (this.INTERSECTED.type === 'stock') {
             if (!this.INTERSECTED.visible) return;
 
-            tooltip.textContent = '이것의 location은 ' + this.INTERSECTED.name + " 입니다.";
+            if (!this.INTERSECTED.userData) this.INTERSECTED.userData = {};
+
+            var loc = this.INTERSECTED.name;
+            var status = this.INTERSECTED.userData.status;
+            var boxId = this.INTERSECTED.userData.boxId;
+            var inDate = this.INTERSECTED.userData.inDate;
+            var type = this.INTERSECTED.userData.type;
+            var count = this.INTERSECTED.userData.count;
+
+            tooltip.textContent = '';
+
+            for (var key in this.INTERSECTED.userData) {
+              if (this.INTERSECTED.userData[key]) tooltip.textContent += key + ": " + this.INTERSECTED.userData[key] + "\n";
+            }
 
             var mouseX = (this._mouse.x + 1) / 2 * this.SCREEN_WIDTH;
             var mouseY = (-this._mouse.y + 1) / 2 * this.SCREEN_HEIGHT;
@@ -4424,6 +4443,7 @@ var WebGL3dViewer = function () {
         // notify the renderer of the size change
         // renderer.setSize( window.innerWidth, window.innerHeight );
         renderer.setSize(this.SCREEN_WIDTH, this.SCREEN_HEIGHT);
+        renderer.setFaceCulling("front_and_back", "cw");
         // update the camera
         camera.aspect = this.SCREEN_WIDTH / this.SCREEN_HEIGHT;
         camera.updateProjectionMatrix();

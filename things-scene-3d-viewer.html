@@ -41,12 +41,13 @@ Example:
         position: absolute;
         left: 0;
         top : 0;
-        max-width : 100px;
+        max-width : 300px;
         background-color: #fff;
         border : 3px solid #666;
         padding: 5px 10px;
         border-radius: 10px;
         display: none;
+        white-space: pre-line;
       }
     </style>
 
@@ -139,11 +140,15 @@ Example:
         if(!this.viewer)
           return
 
-        if(!data || !data.locations)
+        if(!data)
           return
 
-        data.locations.forEach(d => {
+        data.forEach(d => {
           let stock = this.viewer._scene.getObjectByName(d.loc, true)
+          if(stock) {
+            stock.userData = d;
+          }
+
           if(stock){
             stock.material.color.set(STATUS_COLORS[d.status])
 

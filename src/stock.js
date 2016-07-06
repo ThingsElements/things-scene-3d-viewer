@@ -23,7 +23,7 @@ export default class Stock extends THREE.Mesh {
   createStock(w, h, d) {
 
     this.geometry = new THREE.BoxGeometry(w, d, h);
-    this.material = new THREE.MeshLambertMaterial( { color : '#ccaa76', side: THREE.DoubleSide } );
+    this.material = new THREE.MeshLambertMaterial( { color : '#ccaa76', side: THREE.FrontSide } );
     this.type = 'stock'
 
   }
