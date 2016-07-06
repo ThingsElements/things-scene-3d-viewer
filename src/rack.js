@@ -52,7 +52,7 @@ export default class Rack extends THREE.Object3D {
       let stockDepth = model.depth * scale
 
       stock.position.set(0, bottom + (model.depth * i) + (stockDepth * 0.5), 0)
-      stock.name = model.location + "_" + (i + 1)
+      stock.name = model.location + "-" + (i + 1)
 
       this.add(stock)
     }
